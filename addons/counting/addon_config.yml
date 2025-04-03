@@ -1,0 +1,52 @@
+# Configuración básica
+enabled: true
+counting_channel: "1355900369716379858"  # ID del canal de counting
+message_timeout: 10000                   # Tiempo en ms para borrar mensajes (0 para desactivar)
+reset_on_break: false                    # Reiniciar conteo al fallar
+
+# Configuración de roles
+staff_roles: 
+  - "795062815257395270"  # Rol Staff 1
+  - "755204260773494875"  # Rol Staff 2
+
+# Límites de números consecutivos por rol
+role_settings:
+  - role_id: "795062815257395270"  # Rol Staff 1
+    max_consecutive: 3
+  - role_id: "755204260773494875"  # Rol Staff 2
+    max_consecutive: 5
+  - role_id: "1083305519369953312" # Rol VIP
+    max_consecutive: 7
+
+# Colores para los embeds (hexadecimal o nombre)
+embed_colors:
+  success: "#00FF00"    # Verde
+  error: "#FF0000"      # Rojo
+  warning: "#FFA500"    # Naranja
+  info: "#3498db"       # Azul claro
+
+# Mensajes completamente personalizables
+messages:
+  # Mensajes del sistema de counting
+  chain_broken: "**{user}** rompió la cadena ❌\n\nEl siguiente número era: `{expected}`\n\n¡El conteo se ha reiniciado en: `1`!"
+  wrong_number: "**{user}** número incorrecto ❌\n\nPor favor sigue la secuencia. \n\n¡El siguiente número es: `{expected}`!"
+  invalid_message: "**{user}** mensaje no válido ❌\n\nSolo se permiten números.\n\n¡El siguiente número es: `{expected}`!"
+  consecutive_limit: "**{user}** alcanzó el límite de {max} participaciones consecutivas"
+  
+  # Mensajes de comandos
+  reset_success: "✅ Conteo y estadísticas reiniciados completamente"
+  stats_title: "📊 Estadísticas del conteo"
+  no_permission: "❌ No tienes permiso para usar este comando"
+  
+  # Mensajes de ayuda
+  help_title: "Uso del comando /counting"
+  help_description: "Comandos disponibles:"
+  help_stats: "/counting stats - Muestra estadísticas detalladas"
+  help_reset: "/counting reset - Reinicia todo el sistema (Solo staff)"
+  
+  # Mensajes de estadísticas
+  current_count: "**Número actual:** {current}\n**Siguiente número:** {next}"
+  user_stats: "✅ Aciertos: {correct}\n❌ Errores: {wrong}"
+  top_players: "Top {limit} {type}"
+  no_data: "No hay datos aún"
+  total_participants: "Total participantes: {count}"

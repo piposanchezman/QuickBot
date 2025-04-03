@@ -1,0 +1,440 @@
+<html>
+  <body>
+    <% if (category) { %>
+      <div class="categoryEdit row d-flex">
+        <div class="col-12">
+          <div class='py-2 px-2 rounded-1 categoryEditScroll bg-darkblue-rgba' style="overflow-x: hidden;">
+            <div class="row d-flex">
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_name"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Name for Ticket Category"><i class="fa-solid fa-circle-info fa-xs"></i></span> Name</label>
+                <input name="name" id="cat_name" value="<%= category.name %>" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" required />
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_placeholder"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Placeholder for Select Menu"><i class="fa-solid fa-circle-info fa-xs"></i></span> Placeholder</label>
+                <input name="placeholder" id="cat_placeholder" value="<%= category.placeholder %>" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_id"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Unique Category ID"><i class="fa-solid fa-circle-info fa-xs"></i></span> Category ID</label>
+                <input name="id" id="cat_id" type="text" value="<%= category.id %>" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" required />
+              </div>
+              <% if (category.type != "SUBCATEGORY_PARENT") { %>
+                <div class="col-md-3 mb-3">
+                  <label class="text-light pb-1" for="cat_channel_name"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Channel Name to which to rename Ticket upon Category Selection, requires 'rename_choose: true'. Available Placeholders: <username>, <ticket>"><i class="fa-solid fa-circle-info fa-xs"></i></span> Channel Name</label>
+                  <input name="channel_name" id="cat_channel_name" type="text" value="<%= category.channel_name %>" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="text-light pb-1" for="cat_embed_title"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Title of Embed for this Category. Available Placeholders: <category>, <subcategory> (if it's subcategory)"><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Title</label>
+                  <textarea name="embed_title" id="cat_embed_title" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.embed.title %></textarea>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="text-light pb-1" for="cat_embed_desc"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Description of Embed for this Category. Available Placeholders: <user>, <category>, <subcategory>, <reason>"><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Description</label>
+                  <textarea name="embed_desc" id="cat_embed_desc" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.embed.description %></textarea>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="text-light pb-1" for="cat_embed_thumbnail"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Image in the Top Right Corner. Leave empty for none."><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Thumbnail</label>
+                  <textarea name="embed_thumbnail" id="cat_embed_thumbnail" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.embed.thumbnail %></textarea>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="text-light pb-1" for="cat_embed_image"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Image above footer. Leave empty for none."><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Image</label>
+                  <textarea name="embed_image" id="cat_embed_image" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.embed.image %></textarea>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="text-light pb-1" for="cat_embed_color"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Color for Embed when Ticket is open, can be Name (Red, Green etc.) or HEX (#f1f1f1, #dddddd etc.)"><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Color</label>
+                  <input name="embed_color" id="cat_embed_color" type="text" value="<%= category.embed.color %>" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+                </div>
+              <% } %>
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_panel_title"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Title of Panel of this Category."><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Title</label>
+                <textarea name="panel_title" id="cat_panel_title" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.panel.title %></textarea>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_panel_desc"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Description of Panel of this Category."><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Description</label>
+                <textarea name="panel_desc" id="cat_panel_desc" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.panel.description %></textarea>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_panel_thumbnail"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Image in the Top Right Corner. Leave empty for none."><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Thumbnail</label>
+                <textarea name="panel_thumbnail" id="cat_panel_thumbnail" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.panel.thumbnail %></textarea>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_panel_image"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Image above footer. Leave empty for none."><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Image</label>
+                <textarea name="panel_image" id="cat_panel_image" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border"><%= category.panel.image %></textarea>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="text-light pb-1" for="cat_panel_color"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Color for Panel of this Category, can be Name (Red, Green etc.) or HEX (#f1f1f1, #dddddd etc.)"><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Color</label>
+                <input name="panel_color" id="cat_panel_color" type="text" value="<%= category.panel.color %>" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+              </div>
+              <% if (category.type != "SUBCATEGORY_PARENT") { %>
+                <div class="col-md-3 d-flex flex-column mb-3">
+                  <label class="text-light pb-1" for="cat_roles"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Roles which will have access to Ticket. Requires 'separate_roles > enabled' to be true."><i class="fa-solid fa-circle-info fa-xs"></i></span> Roles</label>
+                  <select class="select2-selectmenu text-light d-block" id="cat_roles" style="width: 100%;" name="roles" data-placeholder="Select Roles" multiple="multiple">
+                    <option value=""></option>
+                    <% for(const role of guild.roles.cache) { %>
+                      <option <%= categoryRoles.includes(role[0]) == true ? "selected" : "" %>  value="<%= role[0] %>"><%= role[1].name %> </option>
+                    <% } %>
+                  </select>
+                </div>
+                <div class="col-md-3 d-flex flex-column mb-3">
+                  <label class="text-light pb-1" for="cat_category"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Channel Category in which to move Ticket after Category Selection. Requires 'separate_categories' to be true."><i class="fa-solid fa-circle-info fa-xs"></i></span> Category</label>
+                  <% const chCategories = guild.channels.cache.filter((c) => c.type == 4); %> 
+                  <select class="select2-selectmenu text-light d-block" id="cat_category" style="width: 100%;" name="category" data-placeholder="Select Category">
+                    <option value=""></option>
+                    <% for(const ch of chCategories) {%> 
+                      <option <%= bot.utils.findChannel(guild, category.category)?.id == ch[0] ? "selected" : "" %> value="<%= ch[0] %>"><%= ch[1].name %> </option>
+                    <% } %> 
+                  </select>
+                </div>
+                <div class="col-md-3 d-flex flex-column mb-3">
+                  <label class="text-light pb-1" for="cat_fallback_categories"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Channel Category(ies) in which to move Ticket after Category Selection if the category from 'category' field is full (50 channels)"><i class="fa-solid fa-circle-info fa-xs"></i></span> Fallback Categories</label>
+                  <select class="select2-selectmenu select2-selectmenu--multi-cfg text-light d-block" id="cat_fallback_categories" style="width: 100%;" name="fallback_categories" data-placeholder="Select Categories" multiple="multiple">
+                    <option value=""></option>
+                    <% for(const ch of chCategories) {%> 
+                      <option <%= category.fallback_categories.map((fb) => bot.utils.findChannel(guild, fb)?.id).includes(ch[0]) ? "selected" : "" %> value="<%= ch[0] %>"><%= ch[1].name %> </option>
+                    <% } %>
+                  </select>
+                </div>
+              <% } %>
+              <div class="col-md-3 d-flex flex-column mb-3">
+                <label class="text-light pb-1" for="cat_type"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Type of Ticket Category, Subcategories must be edited from config.yml"><i class="fa-solid fa-circle-info fa-xs"></i></span> Type</label>
+                <select class="select2-selectmenu text-light d-block" id="cat_type" style="width: 100%;" name="type" data-placeholder="Select Ticket Category">
+                  <option value=""></option>
+                  <option value="SUPPORT" <%= category.type == "SUPPORT" ? "selected" : "" %>>Support</option>
+                  <option value="COMMISSION" <%= category.type == "COMMISSION" ? "selected" : "" %>>Commission</option>
+                  <% if (isSub == false) { %>
+                    <option value="SUBCATEGORY_PARENT" <%= category.type == "SUBCATEGORY_PARENT" ? "selected" : "" %>>SubCategory Parent</option>
+                  <% } %>
+                </select>
+              </div>
+              <div class="col-md-3 d-flex flex-column mb-3">
+                <label class="text-light pb-1" for="cat_bttn_color"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Color of Panel Button of this category"><i class="fa-solid fa-circle-info fa-xs"></i></span> Button Color</label>
+                <select class="select2-selectmenu text-light d-block" id="cat_bttn_color" style="width: 100%;" name="type" data-placeholder="Select Button Color">
+                  <option value=""></option>
+                  <option value="Primary" <%= category.button_color == "Primary" ? "selected" : "" %>>Primary (Blue)</option>
+                  <option value="Secondary" <%= category.button_color == "Secondary" ? "selected" : "" %>>Secondary (Grey)</option>
+                  <option value="Success" <%= category.button_color == "Success" ? "selected" : "" %>>Success (Green)</option>
+                  <option value="Danger" <%= category.button_color == "Danger" ? "selected" : "" %>>Danger (Red)</option>
+                </select>
+              </div>
+              <div class="col-md-1 mb-3">
+                <label class="text-light pb-1" for="cat_emoji"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Select Menu Emoji"><i class="fa-solid fa-circle-info fa-xs"></i></span> Emoji</label>
+                <input name="emoji" id="cat_emoji" type="text" maxlength="64" value="<%= category.emoji %>" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+              </div>
+              <% if (category.type != "SUBCATEGORY_PARENT") { %>
+                <div class="col-md-1 mb-3">
+                  <label class="text-light pb-1" for="cat_limit"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Max Number of Tickets User can open in Category. Per-Category Limit"><i class="fa-solid fa-circle-info fa-xs"></i></span> Limit</label>
+                  <input name="limit" id="cat_limit" type="number" min="0" value="<%= category.limit %>" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+                </div>
+              <% } %>
+              <!-- HERE -->
+              <div class="form-check form-switch col-md-6 ms-3">
+                <% if (category.type != "SUBCATEGORY_PARENT") { %>
+                  <input id="cat_ask" class="form-check-input px-0" <%= category.ask_questions == true ? "checked" : "" %> type="checkbox" style="cursor: pointer;" role="switch" id="ask" >
+                  <label class="form-check-label text-light d-flex" for="cat_ask">Ask Questions?<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to Ask Ticket Questions?"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                  <input id="cat_reviews" class="form-check-input px-0" <%= category.ask_review == true ? "checked" : "" %> type="checkbox" style="cursor: pointer;" role="switch" id="ask" >
+                  <label class="form-check-label text-light d-flex" for="cat_reviews">Ask Review?<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to Ask for Review when Ticket gets Closed?"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                <% } %>
+              </div>
+              <% if (category.subcategories?.length > 0) { %>
+                <div class="subCategories mb-3">
+                  <h4 class="text-light text-center text-md-start mb-3"><%= bot.language.dashboard.titles.subcategories %></h4>
+                  <p class="text-light"><%= bot.language.dashboard.select_subcategory %></p>
+                  <div class="col-md-10">
+                    <div class="d-flex flex-row mt-3 mt-md-0 px-2 py-2 rounded-1 bg-superdark" style="overflow-x: scroll;">
+                      <% for(let i = 0; i < category.subcategories.length; i++) { %>
+                        <% const cat = category.subcategories[i]; %>
+                        <% const categoryIndex = bot.categories.findIndex((c) => c.id == category.id) %>
+                        <div class="text-light me-2">
+                          <button onclick="viewSubCategory('<%= categoryIndex %>', '<%= i %>')" class="btn btn-sm btn-primary"><%= cat.id %></button>
+                        </div>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+              <% if (category.questionsList && category.questionsList?.length > 0 && category.type != "SUBCATEGORY_PARENT") { %>
+                <div class="ticketQuestions mt-3">
+                  <h4 class="text-light text-center text-md-start mb-3"><%= bot.language.dashboard.titles.questions %></h4>
+                  <% for(let i = 0; i < category.questionsList.length; i++) { %>
+                    <% const question = category.questionsList[i]; %> 
+                    <div class="row mt-4 d-flex align-items-center questionsWrap questionRow-<%= i %>">
+                      <div class="col-md-5">
+                        <label class="text-light pb-1" for="question_name"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Name of Ticket Question"><i class="fa-solid fa-circle-info fa-xs"></i></span> Name</label>
+                        <input name="question_name" id="question_name" value="<%= question.name %>" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+                      </div>
+                      <div class="col-md-5">
+                        <label class="text-light pb-1" for="question"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Question you want to ask"><i class="fa-solid fa-circle-info fa-xs"></i></span> Question</label>
+                        <input name="question" id="question" type="text" value="<%= question.question %>" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+                      </div>
+                      <% if(i == 0) { %>
+                        <div class="col-md-2 addQuestion mt-2 mt-md-3 mt-md-0 text-center text-md-start">
+                          <i style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Add Question" class="fa-solid fa-circle-plus fs-4 text-success"></i>
+                        </div>
+                      <% } else { %>
+                        <div id="quest-<%= i+1 %>" class="removeQuestion-<%= i+1 %> col-md-2 d-block mt-2 mt-md-3 mt-md-0 text-center text-md-start">
+                          <i id="<%= i %>" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Remove Question" class="fa-solid fa-trash fs-4 text-danger"></i>
+                        </div>
+                      <% } %> 
+                    </div>
+                  <% } %>
+                </div>
+              <% } %>
+              <hr>
+            </div>            
+          </div>
+          <div class="d-flex flex-column flex-md-row row align-items-center my-3">
+            <div class="col-md-4 d-flex flex-row align-items-center">
+              <button class="btn btn-primary" onclick="saveCategory(event, '<%= category.id %>', '<%= isSub == true ? parentCategory : null %>')">Save Category</button>
+              <% if(inCloned == false) { %>
+                <i style="cursor: pointer;" onclick="deleteCategory(event, '<%= category.id %>', '<%= isSub == true ? parentCategory : null %>')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete Current Category" class="fa-solid fa-trash text-danger fs-4 ms-3"></i>
+              <% } %>
+              <% if(inCloned == true) { %>
+                <i style="cursor: pointer;" onclick="removeQuery()" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Cancel Category Cloning" class="fa-solid fa-right-from-bracket text-danger fs-4 ms-3"></i>
+              <% } %>
+            </div>
+            <div class="col-md-8">
+              <div class="d-flex flex-row mt-3 mt-md-0 ms-md-3 px-2 py-2 rounded-1 bg-superdark" style="overflow-x: scroll;">
+                <div class="text-light me-3">
+                  <button onclick="addNewCategory()" class="btn btn-sm btn-success text-nowrap">Clone Current Category</button>
+                </div>
+                <div class="me-3" style="background-color: #2f3c60; width: 1px;"></div>
+                <% for(let i = 0; i < bot.categories.length; i++) { %>
+                  <% const cat = bot.categories[i]; %> 
+                  <% if (cat.type != "SUBCATEGORY") { %>
+                    <div class="text-light me-2">
+                      <button onclick="viewCategory('<%= i %>')" class="btn btn-sm btn-primary"><%= cat.id %></button>
+                    </div>
+                  <% } %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </body>
+  <script>
+
+    $(document).ready(function() {
+      const url = new URL(window.location.href);
+      if(url.searchParams.has("isNew"))
+        toastr.info("You're currently in Cloned Ticket Category which is not saved. To leave click on 'Exit' button next to 'Save Category'", "", { timeOut: 0, extendedTimeOut: 0 })
+    });
+
+    $(".addQuestion").on("click", () => {
+      const uniqueId = $(".questionsWrap").length;
+      const newSet = document.createElement("div");
+      newSet.innerHTML = `
+      <div class="row mt-4 d-flex align-items-center questionsWrap questionRow-${uniqueId}">
+        <div class="col-md-5">
+          <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Name of Ticket Question"><i class="fa-solid fa-circle-info fa-xs"></i></span> Name</label>
+          <input name="question_name" id="question_name" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+        </div>
+        <div class="col-md-5">
+          <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Question you want to ask"><i class="fa-solid fa-circle-info fa-xs"></i></span> Question</label>
+          <input name="question" id="question" type="text" class="form-control categoriesInput text-white rounded-2 text-light input-with-border" />
+        </div>
+        <div id="quest-${uniqueId}" class="removeQuestion-${uniqueId} col-md-2 mt-3 mt-md-0 text-center text-md-start">
+          <i id="${uniqueId}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Remove Question" style="cursor: pointer;" class="fa-solid fa-trash fa-2x text-danger"></i>
+        </div>
+      </div>`;
+
+      $(".ticketQuestions").append(newSet);
+    });
+
+    $(document).on("click", "div[class^=removeQuestion]", (e) => {
+      $(`.questionRow-${e.target.id}`).remove();
+    });
+
+    /* CHANGE TICKET CATEGORY */
+    const viewCategory = (category) => {
+      let url = new URL(window.location.href);
+      url.searchParams.set("categoryId", category);
+      if(category == -1 || category == 0)
+        url.searchParams.delete("categoryId");
+      if(url.searchParams.has("isNew"))
+        url.searchParams.delete("isNew");
+      if(url.searchParams.has("isNewSub"))
+        url.searchParams.delete("isNewSub");
+      if(url.searchParams.has("editingSub"))
+        url.searchParams.delete("editingSub");
+      if(url.searchParams.has("subId"))
+        url.searchParams.delete("subId");
+      
+      window.location.href = url.href;
+    }
+
+    /* CHANGE TICKET SUBCATEGORY */
+    const viewSubCategory = (category, subCategory) => {
+      let url = new URL(window.location.href);
+      url.searchParams.set("categoryId", category);
+      url.searchParams.set("subId", subCategory);
+      url.searchParams.set("editingSub", 1);
+
+      if(category == -1 || category == 0)
+        url.searchParams.delete("categoryId");
+      if(url.searchParams.has("isNew"))
+        url.searchParams.delete("isNew");
+      if(url.searchParams.has("isNewSub"))
+        url.searchParams.delete("isNewSub");
+      
+      window.location.href = url.href;
+    }
+
+    const addNewCategory = () => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("isNew", 1);
+      
+      if(url.searchParams.has("editingSub"))
+        url.searchParams.set("isNewSub", 1);
+
+      window.location.href = url.href;
+    }
+
+    /* DELETE TICKET CATEGORY */
+    const deleteCategory = (e, categoryId, parentCategory) => {
+      const url = new URL(window.location.href)
+      const editingSub = url.searchParams.get("editingSub");
+      const subcategoryId = url.searchParams.get("subId");
+
+      $.ajax({
+        url: "/settings/config/" + categoryId + "/category",
+        type: "DELETE",
+        dataType: "json",
+        data: {
+          parentCategory,
+          subCategory: editingSub == 1 ? subcategoryId : null
+        },
+        success: ((resp) => {
+          toastr.success(`Ticket Category with ID '${categoryId}' have been deleted.`)
+          setTimeout(() => removeAllParams(), 1300);
+        }),
+        error: (() => {})
+      });
+    }
+
+    /* SAVE TICKET CATEGORY */
+    const saveCategory = (e, categoryId, parentCategory = null) => {
+      const name = $("#cat_name").val(), id = $("#cat_id").val(), placeholder = $("#cat_placeholder").val(),
+        type = $("#cat_type").val(), roles = $("#cat_roles").val(), channel_name = $("#cat_channel_name").val(), 
+        category = $("#cat_category").val(), emoji = $("#cat_emoji").val(), 
+        ask_questions = $("#cat_ask").is(":checked"), embed_desc = $("#cat_embed_desc").val(), embed_title = $("#cat_embed_title").val(), 
+        embed_color = $("#cat_embed_color").val(), embed_image = $("#cat_embed_image").val(), embed_thumbnail = $("#cat_embed_thumbnail").val()
+        limit = $("#cat_limit").val(), panel_title = $("#cat_panel_title").val(), ask_review = $("#cat_reviews").is(":checked"),
+        panel_desc = $("#cat_panel_desc").val(), panel_thumbnail = $("#cat_panel_thumbnail").val(), panel_image = $("#cat_panel_image").val(),
+        panel_color = $("#cat_panel_color").val(), button_color = $("#cat_bttn_color").val(), fallback_categories = $("#cat_fallback_categories").val();
+
+      const questionsNames = $("[id=question_name]").toArray().map((q) => $(q).val());
+      const questionsTexts = $("[id=question]").toArray().map((q) => $(q).val());
+
+      const url = new URL(window.location.href)
+      const editingSub = url.searchParams.get("editingSub");
+      const subcategoryId = url.searchParams.get("subId");
+
+      const questionList = questionsNames.map((x, index) => {
+        const questName = x.toString() + "";
+        return {
+          name: questName,
+          question: `${questionsTexts[index]}`
+        }
+      });
+
+      const commissionField = JSON.parse(decodeURIComponent("<%- encodeURIComponent(JSON.stringify(category?.commission || { roles: [], channel: '' })) %>"));
+
+      const categoryData = {
+        name,
+        placeholder,
+        type,
+        channel_name,
+        id,
+        emoji,
+        category,
+        fallback_categories,
+        roles,
+        ask_questions,
+        ask_review,
+        button_color,
+        limit: Number(limit),
+        commission: commissionField,
+        embed: {
+          title: embed_title,
+          description: embed_desc,
+          thumbnail: embed_thumbnail,
+          image: embed_image,
+          color: embed_color
+        },
+        panel: {
+          title: panel_title,
+          description: panel_desc,
+          thumbnail: panel_thumbnail,
+          image: panel_image,
+          color: panel_color
+        },
+        questionsList: questionList,
+      }
+
+      if(type == "SUBCATEGORY_PARENT") {
+        delete categoryData["embed"];
+        delete categoryData["limit"];
+        delete categoryData["ask_questions"];
+        delete categoryData["ask_review"];
+        delete categoryData["button_color"];
+        delete categoryData["category"];
+        delete categoryData["roles"];
+        delete categoryData["channel_name"];
+        delete categoryData["questionsList"];
+        delete categoryData["commission"];
+      }
+
+      $.ajax({
+        url: "/settings/config/" + categoryId + "/category",
+        type: "PATCH",
+        dataType: "json",
+        data: {
+          categoryData: JSON.stringify(categoryData),
+          parentCategory,
+          subCategory: editingSub == 1 ? subcategoryId : null
+        },
+        success: ((resp) => {
+          toastr.success(`Ticket Category with ID '${categoryId}' has been edited successfully.`);
+          const url = new URL(window.location.href);
+
+          if(url.searchParams.has("isNew") && !url.searchParams.has("isNewSub")) {
+            if(url.searchParams.has("categoryId"))
+              url.searchParams.set("categoryId", Number("<%= bot.categories.length %>"));
+
+            url.searchParams.delete("isNew");
+          } else if(url.searchParams.has("isNew") && url.searchParams.has("isNewSub")) {
+            url.searchParams.delete("subId");
+            url.searchParams.delete("editingSub");
+            url.searchParams.delete("isNew");
+            url.searchParams.delete("isNewSub");
+          }
+          setTimeout(() => window.location.href = url.href, 1300);
+        }),
+        error: ((e) => console.log(e))
+      });
+    }
+
+    /* REMOVE ISNEW FROM URL */
+    const removeQuery = () => {
+      const url = new URL(window.location.href);
+      if(url.searchParams.has("isNew"))
+        url.searchParams.delete("isNew");
+      if(url.searchParams.has("isNewSub"))
+        url.searchParams.delete("isNewSub");
+
+      window.location.href = url.href;
+    }
+
+    /* REMOVE ALL PARAMS */
+    const removeAllParams = () => {
+      const url = new URL(window.location.href);
+      const params = ["isNew", "isNewSub", "categoryId", "editingSub", "subId"];
+      for(const param of params) {
+        if(url.searchParams.has(param))
+          url.searchParams.delete(param);
+      }
+        
+      window.location.href = url.href;
+    }
+  </script>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+  <%- await include("partials/head") %>
+  <body>
+    <div>
+      <%- await include("partials/navbar") %>
+      <div class="bg-darkblue">
+        <% const member = guild.members.cache.get(user.id) %>
+        <% const configUsers = bot.config.server.dashboard.users.config || []; %>
+        <div class="tickets">
+          <% if(bot.config.server.dashboard.modules.settings.config == true && (member.id == guild.ownerId || (bot.config.roles.dashboard.config.length > 0 && bot.utils.hasRole(bot, guild, member, bot.config.roles.dashboard.config)) || configUsers.includes(member.id))) { %>
+            <div class="ticketCategories">
+              <div class="container px-0">
+                <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.ticket_categories %></h3>
+              </div>
+              <div class="container mt-4">
+                <div class="d-flex row statsBox py-3 px-2">
+                  <div class="col-12 scrollbarSettings">
+                    <%- await include("partials/categories") %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          <% if(bot.config.server.dashboard.modules.panel == true && (member.id == guild.ownerId || (bot.config.roles.dashboard.panel.length > 0 && bot.utils.hasRole(bot, guild, member, bot.config.roles.dashboard.panel)) || configUsers.includes(member.id))) { %>
+            <div class="panelManagement">
+              <div class="container px-0">
+                <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.panel_management %></h3>
+              </div>
+              <div class="container mt-4">
+                <div class="d-flex row statsBox py-3 px-2">
+                  <h4 class="text-light text-start mt-2 mb-3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="If you specify 'Ticket Category', it will use panel of first selected category.">Customise</h4>
+                  <div class="d-flex row">
+                    <div class="col-md-4 mb-3">
+                      <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Title for Embed"><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Title</label>
+                      <input name="panel_title" id="panel_title" type="text" value="<%= bot.embeds.panel_title %>" class="form-control text-white rounded-2 text-light input-with-border" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Description of Embed for Panel"><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Embed Description</label>
+                      <textarea name="panel_message" id="panel_message" type="text" class="form-control text-white rounded-2 text-light input-with-border"><%= bot.embeds.panel_message %></textarea>
+                    </div>
+                    <div class="d-flex col-md-4 mb-3">
+                      <div class="ms-1">
+                        <div class="form-check form-switch">
+                          <input onclick="changeEmbeds(event, 'panel.image.enabled', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="image.enabled" <%= bot.embeds.panel.image.enabled == true ? "checked" : "" %> >
+                          <label class="form-check-label text-light d-flex align-items-center">Embed Image<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to show Image on Panel Embed"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                          <input onclick="changeEmbeds(event, 'panel.thumbnail.enabled', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="thumbnail.enabled" <%= bot.embeds.panel.thumbnail.enabled == true ? "checked" : "" %> >
+                          <label class="form-check-label text-light d-flex align-items-center">Embed Thumbnail<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to show Thumbnail on Panel Embed`"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        </div>
+                      </div>
+                    </div>
+                    <% if (bot.embeds.panel.image.enabled == true) { %>
+                      <div class="col-md-4 mb-3">
+                        <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Image above Footer"><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Image</label>
+                        <input name="panel_image" id="panel_image" type="text" value="<%= bot.embeds.panel.image.url %>" class="form-control text-white rounded-2 text-light input-with-border" />
+                      </div>
+                    <% } %>
+                    <% if (bot.embeds.panel.thumbnail.enabled == true) { %>
+                      <div class="col-md-4 mb-3">
+                        <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Image in the Top Right Corner"><i class="fa-solid fa-circle-info fa-xs"></i></span> Embed Thumbnail</label>
+                        <input name="panel_thumbnail" id="panel_thumbnail" type="text" value="<%= bot.embeds.panel.thumbnail.url %>" class="form-control text-white rounded-2 text-light input-with-border" />
+                      </div>
+                    <% } %>
+                  </div>
+                  <h4 class="text-light text-start mt-2 mb-3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="If you specify 'Ticket Category', it will use panel of first selected category.">Send Options</h4>
+                  <div class="d-flex row">
+                    <div class="col-md-3 d-flex flex-column mb-3">
+                      <% const chCategories = guild.channels.cache.filter((c) => c.type == 0); %> 
+                      <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Channel in which to send Panel."><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Channel</label>
+                      <select class="select2-selectmenu text-light d-block" id="panel_channel" style="width: 100%;" name="roles" data-placeholder="Select Channel">
+                        <option value=""></option>
+                        <% for(const ch of chCategories) { %>
+                          <option value="<%= ch[0] %>"><%= ch[1].name %> </option>
+                        <% } %>
+                      </select>
+                    </div>
+                    <% 
+                      const getCombinedCategories = (arr, result = []) => {
+                        arr.forEach(obj => {
+                          result.push(obj);
+                          if (obj.hasOwnProperty('subcategories') && Array.isArray(obj.subcategories)) {
+                            getCombinedCategories(obj.subcategories, result);
+                          }
+                        });
+                        return result;
+                      }
+                    %>
+                    <div class="col-md-3 d-flex flex-column mb-3">
+                      <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Category in which to open Ticket automatically (optional) - Separated Panel."><i class="fa-solid fa-circle-info fa-xs"></i></span> Ticket Category</label>
+                      <select class="select2-selectmenu select2-selectmenu--multi-cfg text-light d-block" id="panel_categories" style="width: 100%;" name="categories" data-placeholder="Select Category" multiple="multiple">
+                        <option value="general">Normal</option>
+                        <% for(const ch of getCombinedCategories(bot.categories)) { %>
+                          <option value="<%= ch.id %>"><%= ch.name %> </option>
+                        <% } %>
+                      </select>
+                    </div>
+                  </div>
+                  <h4 class="text-light text-start mt-2 mb-3">Preview</h4>
+                  <div class="preview-parent-container preview-body p-0 p-md-3 mb-3">
+                    <div class="preview-avatar-container d-none d-md-flex"><img height="52" width="52" style="border-radius: 50%;"
+                        src="<%= bot.user.displayAvatarURL() %>" class="avatar">
+                    </div>
+                    <div class="preview-message-container"><span style="padding-bottom: 10px;"><%= bot.config.general.name %><span class="bot-tag">BOT</span> <span
+                          style="font-size: 12px; color: rgb(196, 196, 196);">Today at 12:00</span></span><span></span>
+                      <div class="preview-embed">
+                        <div class="preview-embed-color"></div>
+                        <div class="preview-embed-content">
+                          <span id="panel-title-preview" class="preview-embed-title"><%= bot.embeds.panel_title %></span>
+                          <span id="panel-desc-preview" class="embed-description"><%= bot.embeds.panel_message %></span>
+                          <% if (bot.embeds.panel.image.enabled == true) { %>
+                            <div class="preview-image-container">
+                              <a href="<%= bot.embeds.panel.image.url %>" class="preview-image-link">
+                                <img id="panel-image-preview" class="w-100" src="<%= bot.embeds.panel.image.url.length > 0 ? bot.embeds.panel.image.url : "https://img.freepik.com/free-vector/white-abstract-background-design_361591-1252.jpg" %>" alt="Panel Image">
+                              </a>
+                            </div>
+                          <% } %>
+                          <% if (bot.embeds.panel.footer.enabled == true) { %>
+                            <div class="preview-footer">
+                              <img class="preview-footer-icon" src="<%= bot.user.displayAvatarURL() %>" alt=""><span class="preview-footer-text"><%= bot.embeds.footer %> • 01/01/2000 12:00 AM</span>
+                            </div>
+                          <% } %>
+                        </div>
+                        <% if (bot.embeds.panel.thumbnail.enabled == true) { %>
+                          <div class="preview-thumbnail-container">
+                            <a href="<%= bot.embeds.panel.thumbnail.url %>" class="preview-thumbnail-link">
+                              <img id="panel-thumbnail-preview" src="<%= bot.embeds.panel.thumbnail.url.length > 0 ? bot.embeds.panel.thumbnail.url : "https://simg.nicepng.com/png/small/176-1763437_commercial-cafepress-louisiana-square-canvas-pillow.png" %>" alt="" class="preview-thumbnail" alt="Panel Thumbnail">
+                            </a>
+                          </div>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button class="btn btn-success" onclick="sendPanel(event)"><%= bot.language.dashboard.send_panel %></button>
+                    <button class="btn btn-primary ms-2" onclick="saveEmbeds(event)"><%= bot.language.dashboard.save_panel %></button>
+                    <button class="btn btn-primary ms-2" onclick="previewPanel(event)"><%= bot.language.dashboard.preview_panel %></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          <div class="transcriptList">
+            <div class="container px-0">
+              <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.tickets_list %></h3>
+            </div>
+            <div class="container mt-4">
+              <div class="d-flex row statsBox py-3 px-2">
+                <div class="col-12 scrollbarSettings">
+                  <div class='py-2 px-2 rounded-1 bg-darkblue-rgba' style="overflow-y: scroll; height: 10rem;">
+                    <% const allTickets = (await bot.database.ticketsData().all()) || [] %> 
+                    <% if(allTickets.length > 0) { %>
+                      <% for(const ch of allTickets) { %>
+                        <% const closeBttn = bot.cmdConfig.close; %>
+                        <% const ticketName = guild.channels.cache.get(ch.id) %>
+                        <% if(ticketName) { %>
+                          <div>
+                            <div class="row d-flex align-items-center px-0 px-md-2 w-100">
+                              <div class="col-10 col-md-6">
+                                <i class="fa-solid fa-hashtag text-light fa-1x ps-3"></i><span class="text-light ps-2"><%= ticketName.name %></span>
+                              </div>
+                              <div class="actions col-2 col-md-6 d-flex justify-content-end">
+                                <a href="/ticketing/<%= ch.id %>">
+                                  <i class="fa-solid fa-eye text-light me-2 me-md-3" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="View Ticket"></i>
+                                </a>
+                                <% if((closeBttn.roles.some((r) => member.roles.cache.has(r)) || closeBttn.permissions.some((p) => member.permissions.has(p))) || (closeBttn.permissions.length == 0 && closeBttn.roles.length == 0) || member.permissions.has("Administrator")) { %>
+                                  <a>
+                                    <i id="closeTicket" data-channel="<%= ch.id %>" class="fa-solid fa-lock text-light" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top"
+                                      data-bs-title="Close Ticket"></i>
+                                  </a>
+                                <% } %>
+                              </div>
+                              <hr style="color: #404e60; margin-top: 0.4rem; margin-bottom: 0.4rem;">
+                            </div>
+                          </div>
+                        <% } %> 
+                      <% } %>
+                    <% } else { %>
+                      <div class="text-center align-items-center w-100">
+                        <span class="text-light fw-bold"><%= bot.language.dashboard.no_tickets %></span>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="transcriptList mb-5">
+            <div class="container px-0">
+              <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.transcripts_list %></h3>
+            </div>
+            <div class="container mt-4">
+              <div class="d-flex row statsBox py-3 px-2">
+                <div class="scrollbarSettings">
+                  <div class="d-flex gap-3 align-items-end">
+                    <form method="post" action="/ticketing/transcripts/search" class='form-floating mb-3'>
+                      <p class="text-light fs-5">Search Transcript</p>
+                      <div class="d-flex flex-row">
+                        <input name="transcript_data" type="text" placeholder="ID, username, content.." class="form-control text-white rounded-2 text-light input-with-border" />
+                        <button type="submit" class="btn btn-primary ms-3">Search</button>
+                      </div>
+                    </form>
+                    <!-- Sort -->
+                    <div class="d-flex flex-column align-items-center mb-3">
+                      <!-- <label class="text-light pb-1" for="transcripts_sort"><span><i class="fa-solid fa-circle-info fa-xs"></i></span> Sort by</label> -->
+                      <select data-minimum-results-for-search="-1" class="select2-selectmenu text-light d-block" style="min-width: 200px;" id="transcripts_sort" name="transcripts_sort" data-placeholder="Sort by">
+                        <option value="">Default</option>
+                        <option class="bg-darkblue" value="date_asc">Date (ascending)</option>
+                        <option class="bg-darkblue" value="date_desc">Date (descending)</option>
+                        <option class="bg-darkblue" value="id_asc">Ticket ID (ascending)</option>
+                        <option class="bg-darkblue" value="id_desc">Ticket ID (descending)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class='py-2 px-2 rounded-1 bg-darkblue-rgba transcriptsScroll'>
+                    <div class="row">
+                      <% const transcriptList = transcripts %> 
+                      <% if(transcriptList.length > 0) { %>
+                        <% for(const transcript of transcriptList ) { %>
+                          <% const transcriptData = (await bot.database.transcriptsData().get(`${transcript}`)) || { owner: "N/A", data: "N/A", code: "N/A" } %>
+                          <% const ticketOwner = bot.users.cache.get(transcriptData.owner) || "N/A" %>
+                          <div class="col-4">
+                            <div class="row d-flex flex-column align-items-center px-0 px-md-2 w-100">
+                              <div>
+                                <i class="fa-solid fa-hashtag text-light fa-1x mb-3 fs-5"></i><span class="text-light ps-2 fs-5">transcript-<%= transcript %></span>
+                                <!-- Transcript Details -->
+                                <div class="d-flex flex-column mb-2">
+                                  <span class="text-white fw-medium"><i class="fa-solid fa-user text-primary me-1 me-md-2"></i><%= ticketOwner?.username || "N/A" %></span>
+                                  <span class="text-white fw-medium"><i class="fa-solid fa-calendar text-primary me-1 me-md-2"></i><%= new Date(transcriptData?.date).toLocaleDateString() || "N/A" %></span>
+                                  <span class="text-white"><i class="fa-solid fa-shield-alt text-primary me-1 me-md-2"></i><%= transcriptData.code || "N/A" %></span>
+                                </div>
+                              </div>
+                              <div class="actions d-flex gap-3 mb-2">
+                                <a href="/transcripts/<%= transcript %>">
+                                  <button class="btn btn-sm btn-success" style="min-width: 105px;">View</button>
+                                </a>
+                                <a href="/transcripts/<%= transcript %>/download">
+                                  <button class="btn btn-sm btn-primary" style="min-width: 105px;">Download</button>
+                                </a>
+                              </div>
+                              <hr style="color: #404e60; margin-top: 0.4rem; margin-bottom: 0.4rem;">
+                            </div>
+                          </div>
+                        <% } %> 
+                      <% } else { %>
+                        <div class="text-center align-items-center w-100">
+                          <span class="text-light fw-bold"><%= bot.language.dashboard.no_transcripts %></span>
+                        </div>
+                      <% } %>
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const sidebarBttn = document.querySelector(".ticketing");
+    sidebarBttn.classList.add("active");
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+    /* VSC Giving Error even tho it works when used inline... */
+    $(".preview-embed-color").css("background-color", "<%= bot.utils.colorFormatConvert(bot.embeds.general_color) %>");
+
+    $(document).ready(function() {
+      $(".select2-selectmenu").select2({
+        width: "resolve"
+      });
+
+      $(".select2-selectmenu--multi-cfg").select2({
+        minimumResultsForSearch: -1,
+        tags: true
+      });
+    });
+
+    const allClose = document.querySelectorAll("#closeTicket");
+    allClose.forEach((e) => {
+      e.addEventListener("click", (event) => {
+        const channel = $(e).attr("data-channel");
+
+        $.ajax({
+          url: "/ticketing/" + channel + "/close",
+          type: "post",
+        }).then(() => {
+          toastr.success("Ticket have been closed, reloading.");
+          setTimeout(() => location.reload(), 5000);
+        });
+      })
+    });
+
+    $("#transcripts_sort").on("change", (e) => {
+      let urlParams = new URL(window.location.href);
+      if(urlParams.searchParams.has("sortBy"))
+        urlParams.searchParams.delete("sortBy");
+
+      urlParams = urlParams.searchParams.toString();
+
+      $.ajax({
+        url: "/ticketing/transcripts/sort",
+        type: "POST",
+        dataType: "json",
+        data: {
+          sort_by: e.target.value,
+          curr_params: urlParams || undefined
+        },
+        success: ((resp) => {
+          if(resp?.code == 200) {
+            const redirectUrl = resp.redirectQuery;
+            window.location.href = redirectUrl;
+          }
+        })
+      });
+    });
+
+    /* PREVIEW PANEL EMBED */
+    const previewPanel = (e, showToast = true) => {
+      e.preventDefault();
+      const embedTitle = $("#panel_title").val();
+      const embedDescription = $("#panel_message").val();
+      const embedImage = $("#panel_image").val();
+      const embedThumbnail = $("#panel_thumbnail").val();
+
+      $("#panel-title-preview").text(embedTitle);
+      $("#panel-desc-preview").text(embedDescription);
+
+      $("#panel-image-preview").attr("src", embedImage);
+      $("#panel-thumbnail-preview").attr("src", embedThumbnail);
+      $(".preview-image-link").attr("href", embedImage);
+      $(".preview-thumbnail-link").attr("href", embedThumbnail);
+      if(showToast == true) toastr.success("Preview of Panel Embed has been created.");
+    }
+
+    /* SEND PANEL */
+    const sendPanel = (e) => {
+      e.preventDefault();
+
+      const categorySelected = $("#panel_categories").val();
+      const channelSelected = $("#panel_channel").val();
+
+      $.ajax({
+        url: "/ticketing/panel",
+        type: "POST",
+        dataType: "json",
+        data: {
+          panelData: JSON.stringify({
+            category: categorySelected || "general",
+            channel: channelSelected,
+          })
+        },
+        success: ((resp) => {
+          if(resp?.code == 200) {
+            toastr.success(`Panel has been sent successfully.`);
+          }
+        }),
+        error: (() => {})
+      })
+    }
+
+    /* SUBMIT CHANGES */
+    const saveEmbeds = (e) => {
+      e.preventDefault();
+      const embedTitle = $("#panel_title").val();
+      const embedDescription = $("#panel_message").val();
+      let embedImage = $("#panel_image").val();
+      let embedThumbnail = $("#panel_thumbnail").val();
+
+      changeEmbeds(e, "panel_title", embedTitle);
+      changeEmbeds(e, "panel_message", embedDescription);
+      if(embedImage != undefined) changeEmbeds(e, "panel.image.url", embedImage);
+      setTimeout(() => {
+        if(embedThumbnail != undefined) changeEmbeds(e, "panel.thumbnail.url", embedThumbnail);
+      }, 500)
+      setTimeout(() => {
+        previewPanel(e, false);
+      }, 2500);
+    }
+
+    /* SAVE EMBEDS */
+    const changeEmbeds = (e, section, value, boolean = false) => {
+      if(e.target.value && e.target.value?.length > 0 && !value) 
+        value = e.target.value;
+      if(value == "reset") value = "";
+
+      $.ajax({
+        url: "/settings/embeds",
+        type: "PATCH",
+        dataType: "json",
+        data: {
+          embedsData: JSON.stringify({
+            section,
+            boolean,
+            "value": boolean == true ? null : value,
+          })
+        },
+        success: ((resp) => {
+          if(resp?.code == 200) {
+            if(boolean == true)
+              toastr.success(`Embeds option '${section}' have been ${e.target.checked == true ? "enabled" : "disabled"}.`);
+            else {
+              if(!value || value == "reset") {
+                toastr.success(`Embeds option '${section}' have been reseted.`);
+              } else if($(e.target).hasClass("select2-selectmenu")) {
+                const selectData = $(e.target).select2('data')[0];
+                toastr.success(`Embeds option '${section}' have been edited.`);
+              } else {
+                toastr.success(`Embeds option '${section}' have been changed to '${value}'.`);
+              }
+            }
+          }
+        }),
+        error: (() => {})
+      })
+    }
+  </script>
+</html>

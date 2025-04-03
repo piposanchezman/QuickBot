@@ -1,0 +1,104 @@
+# ________________________________________________
+#
+# CONFIGURACIÓN DEL COMPLEMENTO DE RESPUESTA AUTOMÁTICA
+# ________________________________________________
+
+# Configuración básica
+enabled: true
+use_prefix: false
+prefix: "!"
+default_color: "#0099FF"
+trigger_words: true
+
+# Mensajes de error personalizables
+error_messages:
+  invalid_type: "⚠️ Tipo de información no válido. Por favor selecciona una opción de la lista."
+  no_responses: "⚠️ El sistema de respuestas automáticas no está configurado correctamente."
+  config_reloaded: "✅ Configuración recargada correctamente."
+
+# Configuración de respuestas
+responses:
+  # Respuesta para IP
+  ip:
+    title: "★ Información de Conexión ★"
+    description: "Conéctate a nuestro servidor con estos datos:"
+    color: "#00FF00"
+    fields:
+      - name: "Versiones Java"
+        value: "1.8 hasta la 1.21.x"
+        inline: true
+      - name: "IP Java"
+        value: "quickland.net"
+        inline: true
+      - name: "Modalidades"
+        value: "Survival 1.12.2, FFa Clans, QuickPvp, OneBlock, etc."
+        inline: false
+      - name: "Versiones Bedrock"
+        value: "+1.21.40"
+        inline: true
+      - name: "IP Bedrock"
+        value: "quickland.net"
+        inline: true
+      - name: "Puerto Bedrock"
+        value: "19132"
+        inline: true
+    thumbnail: ""
+    footer: "¡Esperamos verte en el servidor!"
+
+  # Respuesta para invitación
+  invitar:
+    title: "Invitación al servidor"
+    description: "¡Estaremos agradecidos si compartes nuestra invitación!"
+    color: "#5865F2"
+    fields:
+      - name: "Enlace de invitación"
+        value: "[Invitación (Click Aquí)](https://discord.quickland.net/)"
+        inline: false
+    footer: "¡Te esperamos en nuestra comunidad!"
+    
+  # Respuesta para tienda
+  tienda:
+    title: "★ Quickland Network ★"
+    description: "Esta es nuestra tienda oficial donde podrás encontrar rangos y ventajas"
+    color: "#FFD700"
+    fields:
+      - name: "Enlace de la tienda"
+        value: "[Tienda (Click Aquí)](https://quickland.tebex.io/)"
+        inline: false
+    thumbnail: ""
+    footer: "¡Gracias por tu apoyo!"
+
+  # Respuesta para reglas
+  reglas:
+    title: "Reglas del Servidor"
+    description: "Por favor lee atentamente nuestras reglas antes de participar"
+    color: "#FF0000"
+    fields:
+      - name: "Documento de reglas"
+        value: "[Enlace (Click Aquí)](https://docs.google.com/document/d/1vA839HbBLUjTJafXd9sVLzEeQmiBhjbM-XnvQiw410Q)"
+        inline: false
+    footer: "El incumplimiento de las reglas puede resultar en sanciones"
+    
+  # Respuesta para media
+  media:
+    title: "Requisitos para Rango Media"
+    description: "Información para creadores de contenido"
+    color: "#9147FF"
+    fields:
+      - name: "📜 Rango YouTube"
+        value: "● Un video/directo en QuickLand\n● Tener mínimo 200 suscriptores\n● Mantener 100 visitas o 10 espectadores en promedio"
+        inline: true
+      - name: "📜 Rango TikTok"
+        value: "● Un video/directo en QuickLand\n● Tener mínimo 500 seguidores\n● Mantener 1000 visitas o 25 espectadores en promedio"
+        inline: true
+      - name: "📜 Rango Kick"
+        value: "● Un directo en QuickLand\n● Tener mínimo 200 seguidores\n● Mantener 20 espectadores en promedio"
+        inline: true
+      - name: "📜 Rango Twitch"
+        value: "● Un directo en QuickLand\n● Tener mínimo 100 seguidores\n● Mantener 10 espectadores promedio"
+        inline: true
+      - name: " 📃 Procedimiento"
+        value: "● Si cumples los requisitos, abre un ticket en <#721828292981817404> para aplicar"
+        inline: false
+    thumbnail: ""
+    footer: "¡Esperamos tu contenido!"

@@ -1,0 +1,292 @@
+<html>
+  <%- await include("partials/head")  %>
+  <body>
+    <div>
+      <%- await include("partials/navbar") %>
+      <div class="bg-darkblue">
+        <div class="statistics">
+          <div class="container px-0">
+            <h3 class="mt-5 text-light text-md-start"><%= bot.language.dashboard.title %></h3>
+          </div>
+          <div class="container mt-4">
+            <div class="row gap-4">
+              <% if(bot.config.server.dashboard.home.tickets_open == true) { %>
+                <div class="col-12 col-md statsBox">
+                  <div>
+                    <p class="mb-0 fs-5 text-light"><%= bot.language.dashboard.titles.total %></p>
+                    <p class="mb-0 fs-3 fw-bold text-white">
+                      <%= 
+                        await bot.database.guildData().get(`${bot.config.general.guild}.ticketCount`);
+                      %> 
+                    </p>
+                  </div>
+                  <!-- <p class="text-center p-0" style="color: rgb(156 163 175);">
+                    <%= 
+                      (await bot.database.ticketsData().all()).length
+                    %> current open
+                  </p> -->
+                </div>
+              <% } %>
+              <% if(bot.config.server.dashboard.home.income == true) { %>
+                <div class="col-12 col-md statsBox">
+                  <div>
+                    <p class="mb-0 fs-5 text-light"><%= bot.language.dashboard.titles.income %></p>
+                    <p class="mb-0 fs-3 fw-bold text-white">
+                      <%= 
+                        bot.config.general.currency_symbol + "" + (await bot.database.guildData().get(`${bot.config.general.guild}.totalIncome`) || 0);
+                      %> 
+                    </p>
+                  </div>
+                </div>
+              <% } %>
+              <% if(bot.config.server.dashboard.home.invoices == true) { %>
+                <div class="col-12 col-md statsBox">
+                  <div>
+                    <p class="mb-0 fs-5 text-light"><%= bot.language.dashboard.titles.invoices %></p>
+                    <p class="mb-0 fs-3 fw-bold text-white">
+                      <%= 
+                        (await bot.database.guildData().get(`${bot.config.general.guild}.totalInvoices`) || 0)
+                      %> 
+                    </p>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+            <div class="row gap-4 mt-3 mb-5 mb-md-0">
+              <% if(bot.config.server.dashboard.home.commissions == true) { %>
+                <div class="col-12 col-md statsBox">
+                  <div>
+                    <p class="mb-0 fs-5 text-light"><%= bot.language.dashboard.titles.commissions %></p>
+                    <p class="mb-0 fs-3 fw-bold text-white">
+                      <%= 
+                        (await bot.database.ticketsData().all()).filter((i) => i.value?.commission || i.commission).length
+                      %> 
+                    </p>
+                  </div>
+                </div>
+              <% } %>
+              <% if(bot.config.server.dashboard.home.members == true) { %>
+                <div class="col-12 col-md statsBox">
+                  <div>
+                    <p class="mb-0 fs-5 text-light"><%= bot.language.dashboard.titles.members %></p>
+                    <p class="mb-0 fs-3 fw-bold text-white">
+                      <%= 
+                        guild.members.cache.size
+                      %>
+                    </p>
+                  </div>
+                </div>
+              <% } %>
+              <% 
+                let history = await bot.database.usersData().get(`${user.id}.reviews`) || [];
+                let totalRating = 0;
+                for(let i = 0; i < history.length; i++) {
+                  totalRating += parseInt(history[i].rating);
+                }
+                
+                totalRating = Math.floor(totalRating/history.length);
+              %>
+              <% if(bot.config.server.dashboard.home.rating == true) { %>
+                <div class="col-12 col-md statsBox">
+                  <div>
+                    <p class="mb-0 fs-5 text-light"><%= bot.language.dashboard.titles.rating %></p>
+                    <p class="mb-0 fs-3 fw-bold text-white">
+                      <%= 
+                        !isNaN(totalRating) ? `⭐`.repeat(totalRating) : 'N/A'
+                      %>
+                    </p>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+          <% if(bot.config.server.dashboard.home.chart.enabled == true && (bot.config.server.dashboard.home.chart.save_open == true || bot.config.server.dashboard.home.save_close == true)) { %>
+            <div class="container px-0">
+              <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.titles.tickets_chart %></h3>
+            </div>
+            <canvas id="weekTicketsChart"></canvas>
+          <% } %>
+          <% if(bot.config.server.dashboard.home.chart.enabled == true && (bot.config.server.dashboard.home.chart.save_join == true || bot.config.server.dashboard.home.save_leave == true)) { %>
+            <div class="container px-0">
+              <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.titles.members_chart %></h3>
+            </div>
+            <canvas id="weekMembersChart"></canvas>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const sidebarBttn = document.querySelector(".home");
+    sidebarBttn.classList.add("active");
+
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const listOfDays = [];
+
+    `<% 
+      let weekStats = await bot.database.guildData().get(bot.config.general.guild + '.weekStats') || [];
+    %>`;
+
+
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(firstDay);
+      day.setDate(firstDay.getDate() + i);
+      listOfDays.push(day);
+    }
+
+    const daysFormat = listOfDays.map((c) => `${days[c.getDay()]} ${c.getDate()}/${c.getMonth() + 1}/${c.getFullYear()}`);
+
+    let datasetsTickets = [],
+      datasetsMembers = [];
+    let openChart = Boolean("<%= bot.config.server.dashboard.home.chart.save_open %>");
+    let closeChart = Boolean("<%= bot.config.server.dashboard.home.chart.save_close %>");
+    let joinChart = Boolean("<%= bot.config.server.dashboard.home.chart.save_join %>");
+    let leaveChart = Boolean("<%= bot.config.server.dashboard.home.chart.save_leave %>");
+
+    if(openChart == true) {
+      datasetsTickets.push({
+        label: "<%= bot.language.dashboard.titles.opened_chart %>",
+        data: new Array("<%= weekStats.map((a) => a?.open) %>")[0].split(","),
+        backgroundColor: ["rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+        ],
+        borderColor: ["rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+        ],
+        borderWidth: 1
+      });
+    }
+    if(closeChart == true) {
+      datasetsTickets.push({
+        label: "<%= bot.language.dashboard.titles.closed_chart %>", 
+        data: new Array("<%= weekStats.map((a) => a?.close) %>")[0].split(","),
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          ],
+          borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+        ],
+        borderWidth: 1
+      });
+    }
+
+    if(joinChart == true) {
+      datasetsMembers.push({
+        label: "<%= bot.language.dashboard.titles.join_chart %>",
+        data: new Array("<%= weekStats.map((a) => a?.join) %>")[0].split(","),
+        backgroundColor: ["rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+          "rgba(147, 250, 165, 0.2)",
+        ],
+        borderColor: ["rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+          "rgba(147, 250, 165, 1)",
+        ],
+        borderWidth: 1
+      });
+    }
+    if(leaveChart == true) {
+      datasetsMembers.push({
+        label: "<%= bot.language.dashboard.titles.leave_chart %>", 
+        data: new Array("<%= weekStats.map((a) => a?.leave) %>")[0].split(","),
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(255, 99, 132, 0.2)",
+          ],
+          borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 99, 132, 1)",
+        ],
+        borderWidth: 1
+      });
+    }
+    
+    const data = {
+      labels: daysFormat,
+      datasets: datasetsTickets,
+    };
+
+    const config = {
+      type: 'bar',
+      data,
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      },
+    };
+
+    const weekTicketsChart = new Chart(
+      document.getElementById('weekTicketsChart'),
+      config
+    );
+
+    const membersData = {
+      labels: daysFormat,
+      datasets: datasetsMembers,
+    };
+
+    const membersConfig = {
+      type: 'bar',
+      data: membersData,
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      },
+    };
+
+    const weekMembersChart = new Chart(
+      document.getElementById('weekMembersChart'),
+      membersConfig
+    );
+
+  </script>
+</html>

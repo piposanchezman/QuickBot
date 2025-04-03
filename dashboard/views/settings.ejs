@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+  <%- await include("partials/head") %>
+  <body>
+    <div>
+      <%- await include("partials/navbar") %>
+      <div class="bg-darkblue">
+        <div class="settings">
+          <% const member = guild.members.cache.get(user.id); %> 
+          <% const configUsers = bot.config.server.dashboard.users.config || []; %>
+          <% const cmdUsers = bot.config.server.dashboard.users.commands || []; %>
+          <% if(bot.config.server.dashboard.modules.settings.config == true && (member.id == guild.ownerId || (bot.config.roles.dashboard.config.length > 0 && bot.utils.hasRole(bot, guild, member, bot.config.roles.dashboard.config)) || configUsers.includes(member.id))) { %>
+            <div class="configuration mb-5">
+              <div class="container px-0">
+                <h3 class="mt-5 text-light text-center text-md-start test"><%= bot.language.dashboard.titles.config %></h3>
+              </div>
+              <div class="container mt-4">
+                <div class="d-flex row statsBox py-3 px-2">
+                  <h4 class="text-light text-start mt-2 mb-3"><%= bot.language.dashboard.titles.general_config%></h4>
+                  <div class="firstConfig d-flex row">
+                    <form onsubmit="changeConfig(event, 'general')" class="col-md-2 mb-3 mb-md-0">
+                      <label class="text-light pb-1" for="prefix"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Prefix for commands when not using Slash ones"><i class="fa-solid fa-circle-info fa-xs"></i></span> Bot Prefix</label>
+                      <input name="prefix" value="<%= bot.config.general.prefix %>" id="prefix" type="text" maxlength="6" class="form-control configInput text-white rounded-2 text-light w-100 input-with-border" />
+                    </form>
+                    <form onsubmit="changeConfig(event, 'general')" class="col-md-4 mb-3">
+                      <label class="text-light pb-1" for="name"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Name of the Bot"><i class="fa-solid fa-circle-info fa-xs"></i></span> Bot Name</label>
+                      <input name="name" value="<%= bot.config.general.name %>" id="name" type="text" maxlength="32" class="form-control configInput text-white rounded-2 text-light w-100 input-with-border" />
+                    </form>
+                    <form onsubmit="changeConfig(event, 'general')" class="col-md-3 mb-3">
+                      <label class="text-light pb-1" for="commission_tax"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="What % of commission quote does freelancers keep"><i class="fa-solid fa-circle-info fa-xs"></i></span> Commission Tax</label>
+                      <input name="commission_tax" value="<%= bot.config.general.commission_tax %>" id="commission_tax" type="number" min="1" max="100" class="form-control configInput text-white rounded-2 text-light input-with-border" />
+                    </form>
+                    <div class="col-md-3 mb-3">
+                      <div class="container px-0 d-flex flex-column">
+                        <label class="text-light pb-1" for="tickets.transcript_type"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Format in which you want Transcripts to be saved in"><i class="fa-solid fa-circle-info fa-xs"></i></span> Transcript Type</label>
+                        <select data-minimum-results-for-search="-1" class="select2-selectmenu select2-selectmenu--cfg text-light d-block" style="width: 100%;" id="tickets.transcript_type" name="transcript_type" data-placeholder="Select Channel">
+                          <option value=""></option>
+                          <option <%= bot.config.tickets.transcript_type == "HTML" ? "selected": "" %> class="bg-darkblue" value="HTML">HTML</option>
+                          <option <%= bot.config.tickets.transcript_type == "TXT" ? "selected": "" %> class="bg-darkblue" value="TXT">Text</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <div class="container px-0 d-flex flex-column">
+                        <label class="text-light pb-1" for="tickets.mention_support_type"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to mention Roles from 'roles.support' field or Support roles of Ticket Category' field when Ticket is created"><i class="fa-solid fa-circle-info fa-xs"></i></span> Mention Support Type</label>
+                        <select data-minimum-results-for-search="-1" class="select2-selectmenu select2-selectmenu--cfg text-light d-block" style="width: 100%;" id="tickets.mention_support_type" name="mention_support_type" data-placeholder="Select Type">
+                          <option value=""></option>
+                          <option <%= bot.config.tickets.mention_support_type == "BOTH" ? "selected": "" %> class="bg-darkblue" value="BOTH">Both</option>
+                          <option <%= bot.config.tickets.mention_support_type == "CATEGORY_ROLES" ? "selected": "" %> class="bg-darkblue" value="CATEGORY_ROLES">Category Roles</option>
+                          <option <%= bot.config.tickets.mention_support_type == "SUPPORT_ROLES" ? "selected": "" %> class="bg-darkblue" value="SUPPORT_ROLES">Global Support Roles</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <div class="container px-0 d-flex flex-column">
+                        <label class="text-light pb-1" for="tickets.questions_type"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="How to ask questions, using Modal or by answering questions in chat"><i class="fa-solid fa-circle-info fa-xs"></i></span> Questions Asking Type</label>
+                        <select data-minimum-results-for-search="-1" class="select2-selectmenu select2-selectmenu--cfg text-light d-block" style="width: 100%;" id="tickets.questions_type" name="questions_type" data-placeholder="Select Type">
+                          <option value=""></option>
+                          <option <%= bot.config.tickets.questions_type == "MODAL" ? "selected": "" %> class="bg-darkblue" value="MODAL">Modal</option>
+                          <option <%= bot.config.tickets.questions_type == "CHAT" ? "selected": "" %> class="bg-darkblue" value="CHAT">Chat</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <div class="container px-0 d-flex flex-column">
+                        <label class="text-light pb-1" for="tickets.panel_type"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to send panel with Select Menu or Buttons"><i class="fa-solid fa-circle-info fa-xs"></i></span> Panel Type</label>
+                        <select data-minimum-results-for-search="-1" class="select2-selectmenu select2-selectmenu--cfg text-light d-block" style="width: 100%;" id="tickets.panel_type" name="panel_type" data-placeholder="Select Type">
+                          <option value=""></option>
+                          <option <%= bot.config.tickets.panel_type == "SELECT_MENU" ? "selected": "" %> class="bg-darkblue" value="SELECT_MENU">Select Menu (dropdown)</option>
+                          <option <%= bot.config.tickets.panel_type == "BUTTONS" ? "selected": "" %> class="bg-darkblue" value="BUTTONS">Buttons</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3 d-flex flex-column mb-3">
+                      <label class="text-light pb-1" for="roles.support"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="List of Support Roles which will have access to Tickets. Not Required if separate_roles > enabled is true."><i class="fa-solid fa-circle-info fa-xs"></i></span> Support Roles</label>
+                      <select class="select2-selectmenu select2-selectmenu--multi-cfg text-light d-block" id="roles.support" style="width: 100%;" name="roles" data-placeholder="Select Roles" multiple="multiple">
+                        <option value=""></option>
+                        <% for(const role of guild.roles.cache) { %>
+                          <option <%= bot.config.roles.support.includes(role[0]) == true ? "selected" : "" %>  value="<%= role[0] %>"><%= role[1].name %> </option>
+                        <% } %>
+                      </select>
+                    </div>
+                    <div class="col-md-3 d-flex flex-column mb-3">
+                      <label class="text-light pb-1" for="roles.bypass.cooldown"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Roles which can bypass Command Cooldown"><i class="fa-solid fa-circle-info fa-xs"></i></span> Bypass Cooldown</label>
+                      <select class="select2-selectmenu select2-selectmenu--multi-cfg text-light d-block" id="roles.bypass.cooldown" style="width: 100%;" name="bypass_cooldown" data-placeholder="Select Roles" multiple="multiple">
+                        <option value=""></option>
+                        <% for(const role of guild.roles.cache) { %>
+                          <option <%= bot.config.roles.bypass.cooldown.includes(role[0]) == true ? "selected" : "" %>  value="<%= role[0] %>"><%= role[1].name %> </option>
+                        <% } %>
+                      </select>
+                    </div>
+                    <div class="col-md-3 d-flex flex-column mb-3">
+                      <label class="text-light pb-1" for="roles.bypass.permission"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Roles which can bypass Command Permission"><i class="fa-solid fa-circle-info fa-xs"></i></span> Bypass Permission</label>
+                      <select class="select2-selectmenu select2-selectmenu--multi-cfg text-light d-block" id="roles.bypass.permission" style="width: 100%;" name="bypass_perm" data-placeholder="Select Roles" multiple="multiple">
+                        <option value=""></option>
+                        <% for(const role of guild.roles.cache) { %>
+                          <option <%= bot.config.roles.bypass.permission.includes(role[0]) == true ? "selected" : "" %>  value="<%= role[0] %>"><%= role[1].name %> </option>
+                        <% } %>
+                      </select>
+                    </div>
+                  </div>                  
+                  <div class="channelOptions row" style="overflow-x: hidden;">
+                    <% const textChannels = guild.channels.cache.filter((c) => c.type == 0); %>
+                    <% const categoryChannels = guild.channels.cache.filter((c) => c.type == 4); %>
+                    <% const channelArr = Object.keys(bot.config.channels).slice(4); %>
+                    <% 
+                      const channelTexts = {
+                        transcripts: {
+                          name: "Transcripts",
+                          tooltip: "Channel in which to send Transcripts of Tickets"
+                        },
+                        reviews: {
+                          name: "Reviews",
+                          tooltip: "Channel in which to send new Reviews"
+                        },
+                        announce: {
+                          name: "Announce",
+                          tooltip: "Channel in which to send Auto Announcements"
+                        },
+                        suggestions: {
+                          name: "Suggestions",
+                          tooltip: "Channel in which to send new Suggestions"
+                        },
+                        sugg_decision: {
+                          name: "Suggestion Decision",
+                          tooltip: "Channel in which to send message for Suggestion Decision"
+                        },
+                        sugg_logs: {
+                          name: "Suggestion Logs",
+                          tooltip: "Channel in which to send Accepted/Denied Suggestions"
+                        },
+                        withdraw: {
+                          name: "Withdraw",
+                          tooltip: "Channel in which to send Money Withdraw Requests"
+                        },
+                        commissions: {
+                          name: "Commissions",
+                          tooltip: "Channel in which to send new Commisssions"
+                        },
+                        move_closed: {
+                          name: "Move Closed",
+                          tooltip: "Channel in which to Move Closed Tickets"
+                        },
+                      }
+                    %>
+                    <h4 class="text-light text-start mt-2 mb-3"><%= bot.language.dashboard.titles.channels_config%></h4>
+                    <div class="col-md-4 mb-3">
+                      <div class="container px-0 d-flex flex-column">
+                        <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Channel Category in which to open Tickets"><i class="fa-solid fa-circle-info fa-xs"></i></span> Category</label>
+                        <select class="select2-selectmenu select2-selectmenu--cfg text-light d-block" style="width: 100%;" id="channels.tickets_category" name="category" data-placeholder="Select Channel">
+                          <option value=""></option>
+                          <option value="reset">Clear Channel</option>
+                          <% for(const ch of categoryChannels) { %>
+                            <option <%= bot.config.channels.tickets_category == ch[0] ? "selected": "" %> class="bg-darkblue" value="<%= ch[0] %>"><%= ch[1].name %></option>
+                          <% } %>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3 d-flex flex-column mb-3">
+                      <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Channel Category(ies) in which to move Ticket after Category Selection if the category from 'tickets_category' field is full (50 channels)"><i class="fa-solid fa-circle-info fa-xs"></i></span> Fallback Categories</label>
+                      <select class="select2-selectmenu select2-selectmenu--multi-cfg text-light d-block" id="channels.fallback_categories" style="width: 100%;" name="fallback_categories" data-placeholder="Select Categories" multiple="multiple">
+                        <option value=""></option>
+                        <% for(const ch of categoryChannels) {%>
+                          <option <%= bot.config.channels.fallback_categories.map((fb) => bot.utils.findChannel(guild, fb)?.id).includes(ch[0]) ? "selected" : "" %> value="<%= ch[0] %>"><%= ch[1].name %> </option>
+                        <% } %>
+                      </select>
+                    </div>
+                    <% for(const channel of channelArr) { %>
+                      <% if(channel != "channel_name" && channel != "fallback_categories" && channel != "closed_name" && channel != "priority_name") { %>
+                        <div class="col-md-4 mb-3">
+                          <div class="container px-0 d-flex flex-column">
+                            <label class="text-light pb-1"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<%= channelTexts[channel].tooltip %>"><i class="fa-solid fa-circle-info fa-xs"></i></span> <%= channelTexts[channel].name  %> </label>
+                            <select class="select2-selectmenu select2-selectmenu--cfg text-light d-block" id="channels.<%= channel %>" style="width: 100%;" name="<%= channel %>" data-placeholder="Select Channel">
+                              <option value=""></option>
+                              <option value="reset">Clear Channel</option>
+                              <% for(const ch of textChannels) { %>
+                                <option <%= bot.config.channels[channel] == ch[0] ? "selected": "" %> class="bg-darkblue" value="<%= ch[0] %>"><%= ch[1].name %></option>
+                              <% } %>
+                            </select>
+                          </div>
+                        </div>
+                      <% } %> 
+                    <% } %>
+                  </div>
+                  <div class="togglable d-flex flex-column container">
+                    <h4 class="text-light text-start mt-2 mb-3"><%= bot.language.dashboard.titles.togglables%></h4>
+                    <div class="row ms-1">
+                      <div class="form-check form-switch col-md-4">
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="rename_close" <%= bot.config.tickets.rename_close == true ? "checked" : "" %> >
+                        <label for="rename_close" class="form-check-label text-light d-flex">Rename Close<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Rename Ticket Channel to 'closed-user' after closure"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="rename_choose" <%= bot.config.tickets.rename_choose == true ? "checked" : "" %> >
+                        <label for="rename_choose" class="form-check-label text-light d-flex">Rename Choose<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to rename Ticket Channel Name upon Category Selection to Format specified in Category Configuration"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="save_images" <%= bot.config.tickets.save_images == true ? "checked" : "" %> >
+                        <label for="save_images" class="form-check-label text-light d-flex">Save Images<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to save Images in Ticket Transcripts"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="transcripts" <%= bot.config.tickets.transcripts == true ? "checked" : "" %> >
+                        <label for="transcripts" class="form-check-label text-light d-flex">Transcripts<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to save Transcripts"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'general', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="remove_command" <%= bot.config.general.remove_command == true ? "checked" : "" %> >
+                        <label for="remove_command" class="form-check-label text-light d-flex">Remove Command<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Remove Command Message after message is sent"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                      </div>
+                      <div class="form-check form-switch col-md-4">
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="separate_categories" <%= bot.config.tickets.separate_categories == true ? "checked" : "" %> >
+                        <label for="separate_categories" class="form-check-label text-light d-flex">Separate Categories<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether Tickets are moved to specific Channel Category after Ticket Category is selected"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="confirm_close" <%= bot.config.tickets.confirm_close == true ? "checked" : "" %> >
+                        <label for="confirm_close" class="form-check-label text-light d-flex">Confirm Close<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Confirm Close of Ticket"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="mention_author" <%= bot.config.tickets.mention_author == true ? "checked" : "" %> >
+                        <label for="mention_author" class="form-check-label text-light d-flex">Mention Author<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to mention Ticket Author when ticket is open"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="mention_support" <%= bot.config.tickets.mention_support == true ? "checked" : "" %> >
+                        <label for="mention_support" class="form-check-label text-light d-flex">Mention Support<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to mention Support when ticket is open"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="remove_leave" <%= bot.config.tickets.remove_leave == true ? "checked" : "" %> >
+                        <label for="remove_leave" class="form-check-label text-light d-flex">Remove Leave<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether to close Ticket when Member leave"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                      </div>
+                      <div class="form-check form-switch col-md-4">
+                        <input onclick="changeConfig(event, 'tickets', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="dm_transcript" <%= bot.config.tickets.dm_transcript == true ? "checked" : "" %> >
+                        <label for="dm_transcript" class="form-check-label text-light d-flex">DM Transcripts<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="DM Transcripts to User & Support who claimed ticket"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'general', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="ask_review" <%= bot.config.general.ask_review == true ? "checked" : "" %> >
+                        <label for="ask_review" class="form-check-label text-light d-flex">Ask Review<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ask for Review after Ticket Closure"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'general.buttons', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="message_client" <%= bot.config.general.buttons.message_client == true ? "checked" : "" %> >
+                        <label for="message_client" class="form-check-label text-light d-flex">Message Client Button<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether 'Message Client' button is enabled"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'general.buttons', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="claim" <%= bot.config.general.buttons.claim == true ? "checked" : "" %> >
+                        <label for="claim" class="form-check-label text-light d-flex">Claim Button<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether 'Claim Ticket' buttons are enabled"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                        <input onclick="changeConfig(event, 'general.buttons', '', true)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="close" <%= bot.config.general.buttons.close == true ? "checked" : "" %> >
+                        <label for="close" class="form-check-label text-light d-flex">Close Button<span class="ms-2" style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Whether 'Close Ticket' buttons are enabled"><i class="fa-solid fa-circle-info fa-xs"></i></span></label>
+                      </div>
+                    </div>                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          <% if(bot.config.server.dashboard.modules.settings.commands == true && (member.id == guild.ownerId || (bot.config.roles.dashboard.commands.length > 0 && bot.utils.hasRole(bot, guild, member, bot.config.roles.dashboard.commands)) || cmdUsers.includes(member.id))) { %>
+            <div class="commands">
+              <div class="container px-0">
+                <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.titles.commands %></h3>
+              </div>
+              <div class="container mt-4">
+                <div class="d-flex row statsBox py-3 px-2">
+                  <div class="row px-2">
+                    <% for(const cmd of commands) { %>
+                      <div class="col-6 col-sm-4 col-md-4">
+                        <div class="form-check form-switch">
+                          <input onchange="toggleCommand(event)" class="form-check-input px-0" type="checkbox" style="cursor: pointer;" role="switch" id="<%= cmd %>" <%= bot.cmdConfig[cmd].enabled == true ? "checked" : "" %> >
+                          <label class="form-check-label text-light d-flex" for="<%= cmd %>"><%= cmd %> </label>
+                        </div>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          <div class="accessManaging mb-5">
+            <div class="container px-0">
+              <h3 class="mt-5 text-light text-center text-md-start"><%= bot.language.dashboard.titles.access %></h3>
+            </div>
+            <div class="container mt-4">
+              <div class="d-flex row statsBox py-3 px-2">
+                <div class="d-flex row">
+                  <h4 class="text-light text-start mt-2 mb-3"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Users which will be able to access Dashboard without need of role"><i class="fa-solid fa-circle-info fa-xs"></i></span> <%= bot.language.dashboard.titles.dash_access%></h4>
+                  <div class="col-md-4 mb-3">
+                    <form method="post" action="/settings/users/access" className='form-floating mb-3'>
+                      <p class="text-light fs-5"><%= bot.language.dashboard.titles.add %></p>
+                      <input name="user" type="number" maxlength="18" placeholder="User ID to add/remove from Dashboard" class="form-control text-white rounded-2 text-light input-with-border" />
+                      <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                    </form>
+                  </div>
+                  <div class="col-md-6 scrollbarSettings">
+                    <% const accessUsers = bot.config.server.dashboard.users.access || []; %> 
+                    <p class="text-light fs-5"><%= bot.language.dashboard.titles.current_users %><span class="fs-6" style="color: rgb(156 163 175);"> (excluding those with roles)</span></p>
+                    <div class="bg-darkblue-rgba" style="overflow-y: scroll; height: 10rem;">
+                      <div class="py-1 px-2">
+                        <% if(accessUsers.length > 0) { %>
+                          <% for(const user of accessUsers) { %>
+                            <p class="text-light p-0 m-0"><%= bot.users.cache.get(user)?.username || "Unknown User" %> - <%= user %></p>
+                            <hr style="color: #404e60; margin-top: 0.2rem; margin-bottom: 0.2rem;">
+                          <% } %>
+                        <% } else { %>
+                          <div class="text-center align-items-center w-100">
+                            <span class="text-light fw-bold"><%= bot.language.dashboard.no_users %></span>
+                          </div>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% if(user.id == guild.ownerId) { %>
+                  <div class="d-flex row mt-3">
+                    <h4 class="text-light text-start mt-2 mb-3"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Users which will be able to access Config from Dashboard"><i class="fa-solid fa-circle-info fa-xs"></i></span> <%= bot.language.dashboard.titles.config_access%></h4>
+                    <div class="col-md-4 mb-3">
+                      <form method="post" action="/settings/users/config" className='form-floating mb-3'>
+                        <p class="text-light fs-5"><%= bot.language.dashboard.titles.add %></p>
+                        <input name="user" type="number" maxlength="18" placeholder="User ID to add/remove from Config" class="form-control text-white rounded-2 text-light input-with-border" />
+                        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                      </form>
+                    </div>
+                    <div class="col-md-6 scrollbarSettings">
+                      <% const accessUsers = bot.config.server.dashboard.users.config || []; %> 
+                      <p class="text-light fs-5"><%= bot.language.dashboard.titles.current_users %><span class="fs-6" style="color: rgb(156 163 175);"> (excluding those with roles)</span></p>
+                      <div class="bg-darkblue-rgba" style="overflow-y: scroll; height: 10rem">
+                        <div class="py-1 px-2">
+                          <% if(accessUsers.length > 0) { %>
+                            <% for(const user of accessUsers) { %>
+                              <p class="text-light p-0 m-0"><%= bot.users.cache.get(user)?.username || "Unknown User" %> - <%= user %></p>
+                              <hr style="color: #404e60; margin-top: 0.2rem; margin-bottom: 0.2rem;">
+                            <% } %>
+                          <% } else { %>
+                            <div class="text-center align-items-center w-100">
+                              <span class="text-light fw-bold"><%= bot.language.dashboard.no_users %></span>
+                            </div>
+                          <% } %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% } %>
+                <% if(user.id == guild.ownerId) { %>
+                  <div class="d-flex row mt-3">
+                    <h4 class="text-light text-start mt-2 mb-3"><span style="cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Users which will be able to toggle Commands on/off from Dashboard"><i class="fa-solid fa-circle-info fa-xs"></i></span> <%= bot.language.dashboard.titles.cmds_access%></h4>
+                    <div class="col-md-4 mb-3">
+                      <form method="post" action="/settings/users/commands" className='form-floating mb-3'>
+                        <p class="text-light fs-5"><%= bot.language.dashboard.titles.add %></p>
+                        <input name="user" type="number" maxlength="18" placeholder="User ID to add/remove from Dashboard" class="form-control text-white rounded-2 text-light input-with-border" />
+                        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                      </form>
+                    </div>
+                    <div class="col-md-6 scrollbarSettings">
+                      <% const accessUsers = bot.config.server.dashboard.users.commands || []; %> 
+                      <p class="text-light fs-5"><%= bot.language.dashboard.titles.current_users %><span class="fs-6" style="color: rgb(156 163 175);"> (excluding those with roles)</span></p>
+                      <div class="bg-darkblue-rgba" style="overflow-y: scroll; height: 10rem;">
+                        <div class="py-1 px-2">
+                          <% if(accessUsers.length > 0) { %>
+                            <% for(const user of accessUsers) { %>
+                              <p class="text-light p-0 m-0"><%= bot.users.cache.get(user)?.username || "Unknown User" %> - <%= user %></p>
+                              <hr style="color: #404e60; margin-top: 0.2rem; margin-bottom: 0.2rem;">
+                            <% } %>
+                          <% } else { %>
+                            <div class="text-center align-items-center w-100">
+                              <span class="text-light fw-bold"><%= bot.language.dashboard.no_users %></span>
+                            </div>
+                          <% } %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const sidebarBttn = document.querySelector(".settings");
+    sidebarBttn.classList.add("active");
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+     $(".configInput").blur(function() {
+      $(this).submit();
+    });
+    
+    $(document).ready(function() {
+      $(".select2-selectmenu").select2({
+        width: "resolve"
+      });
+
+      $(".select2-selectmenu--multi-cfg").select2({
+        minimumResultsForSearch: -1,
+        tags: true
+      });
+    });
+
+    /* SELECT2 SELECT */
+    $(".select2-selectmenu--cfg").on("select2:select", async(e) => {
+      let value = "";
+      const selOption = $(e.target).select2('data')[0];
+      const option = e.target.id;
+      const channelId = selOption.id;
+
+      if(channelId != "reset") value = selOption.id;
+
+      changeConfig(e, "", value, false);
+    });
+
+    $(".select2-selectmenu--multi-cfg").on("select2:select", async(e) => {
+      const selOption = $(e.target).val();
+      changeConfig(e, "", selOption, false);
+    });
+
+    /* SELECT2 UNSELECT */
+    $(".select2-selectmenu--multi-cfg").on("select2:unselect", async(e) => {
+      const selOption = $(e.target).val();
+      changeConfig(e, "", selOption, false);
+    });
+
+    /* SAVE CONFIG */
+    const changeConfig = (e, section, value, boolean = false) => {
+      if(e.target.value && e.target.value?.length > 0 && !value) 
+        value = e.target.value;
+      if(value == "reset") value = "";
+
+      $.ajax({
+        url: "/settings/config/" + e.target.id,
+        type: "PATCH",
+        dataType: "json",
+        data: {
+          configData: JSON.stringify({
+            section,
+            boolean,
+            "value": boolean == true ? null : value,
+          })
+        },
+        success: ((resp) => {
+          if(resp?.code == 200) {
+            if(boolean == true)
+              toastr.success(`Config option '${e.target.id}' have been ${e.target.checked == true ? "enabled" : "disabled"}.`);
+            else {
+              if(!value || value == "reset") {
+                toastr.success(`Config option '${e.target.id}' have been reseted.`);
+              } else if($(e.target).hasClass("select2-selectmenu")) {
+                const selectData = $(e.target).select2('data')[0];
+                toastr.success(`Config option '${e.target.id}' have been edited.`);
+              } else {
+                toastr.success(`Config option '${e.target.id}' have been changed to '${value}'.`);
+              }
+            }
+          }
+        }),
+        error: (() => {})
+      })
+    }
+
+    /* TOGGLE COMMAND */
+    const toggleCommand = (e) => {
+      $.ajax({
+        url: "/settings/commands/" + e.target.id,
+        type: "PATCH",
+        dataType: "json",
+        success: ((resp) => {
+          if(resp?.code == 200) {
+            toastr.success(`Command '${e.target.id}' have been ${e.target.checked == true ? "enabled" : "disabled"}.`);
+          }
+        }),
+        error: (() => {})
+      })
+    }
+
+    /* DELETE/RESET BALANCE */
+    const handleDelete = (event, userId) => {
+      event.preventDefault();
+      $.ajax({
+        url: "/settings/balance/reset",
+        type: "post",
+        dataType: "json",
+        data: {
+          user: userId
+        },
+        success: ((resp) => { 
+          toastr.success("Balance have been reseted successfully.");
+          setTimeout(() => location.reload(), 5000);
+        }),
+        error: (() => {})
+      })
+    }
+  </script>
+</html>
