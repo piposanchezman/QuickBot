@@ -1,0 +1,429 @@
+# ________________________________________________
+#
+#       CHAMPION TICKETS COMMANDS FILE
+#
+# Here you can commands configuration like required role,
+# description, aliases and similar.
+#
+# ________________________________________________
+
+# Command Name
+new:
+  # Role(s) Required to run Command, leave empty for none
+  # User need at least one role from list.
+  roles: []
+  # Command Aliases, leave [] for none,
+  # Example:
+  # aliases: ["ticket"]
+  aliases: ["ticket"]
+  # Cooldown for Command in seconds
+  cooldown: 0
+  # Discord Permission Required to run Command, leave [] for none
+  # Example:
+  # permissions: ["Administrator"]
+  permissions: []
+  # Command Description
+  description: "Crear ticket"
+  # Command Usage
+  usage: "new"
+  # Whether Response of Command is only visible to User who run command (Only Slash Commands!)
+  # Not Present on All Commands!
+  ephemeral: false
+  # Is Command Enabled
+  enabled: true
+add:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Añadir un usuario al ticket"
+  usage: "add [@User]"
+  ephemeral: false
+  enabled: true
+remove:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Eliminar un usuario del ticket"
+  usage: "remove [@User]"
+  ephemeral: false
+  enabled: true
+close:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Cerrar el ticket"
+  usage: "close"
+  enabled: true
+rename:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Renombrar el ticket"
+  usage: "rename [#Channel] [Name]"
+  ephemeral: false
+  enabled: true
+claim:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Reclamar el ticket"
+  usage: "claim"
+  ephemeral: false
+  enabled: true
+assign:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Asignar el ticket a un staff"
+  usage: "assign [@User]"
+  ephemeral: false
+  enabled: true
+panel:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageGuild"]
+  description: "Crear el panel de tickets"
+  usage: "panel [Category ID (If want Separate Panels)]"
+  ephemeral: false
+  enabled: true
+reask:
+  roles: []
+  aliases: ["ManageMessages"]
+  cooldown: 0
+  permissions: []
+  description: "Realizar las preguntas del ticket e iniciar el proceso nuevamente"
+  usage: "reask"
+  ephemeral: false
+  enabled: true
+gettranscript:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Obtener el archivo de transcripción"
+  usage: "gettranscript [Ticket ID]"
+  enabled: true
+transcriptsinfo:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Ver las transcripciones relacionadas con la ID del ticket/usuario"
+  usage: "transcriptsinfo [User/Ticket ID]"
+  enabled: true
+ping:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Obtener el ping del bot"
+  usage: "ping"
+  enabled: true
+help:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Ver los comandos disponibles"
+  usage: "help [Category/Command]"
+  ephemeral: true
+  enabled: true
+id:
+  roles: []
+  aliases: ["getid"]
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Obtener el ID del canal/usuario/rol"
+  usage: "id [Channel/@User/Role]"
+  ephemeral: false
+  enabled: true
+suggest:
+  roles: []
+  aliases: ["suggestion"]
+  cooldown: 0
+  permissions: []
+  description: "Crear una sugerencia"
+  usage: "suggest [Suggestion]"
+  enabled: false
+review:
+  roles: []
+  aliases: ["addreview"]
+  cooldown: 0
+  permissions: []
+  description: "Añadir una reseña de usuario"
+  usage: "review [@User]"
+  enabled: true
+getreview:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Obtener la información sobre una reseña"
+  usage: "getreview [@User] [Review ID]"
+  ephemeral: false
+  enabled: true
+profile:
+  roles: []
+  aliases: ["stats", "reviews"]
+  cooldown: 0
+  permissions: []
+  description: "Ver el perfil del usuario"
+  usage: "profile [@User]"
+  ephemeral: false
+  enabled: true
+clientprofile:
+  roles: []
+  aliases: ["clientinfo"]
+  cooldown: 0
+  permissions: []
+  description: "Ver el perfil del cliente"
+  usage: "clientprofile [@User]"
+  ephemeral: false
+  enabled: true
+edit:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageGuild"]
+  description: "Editar los datos del usuario/canal"
+  usage: "edit [@User/#Channel] [addorder/removeorder/deletereview/addbalance/removebalance || commprice] [Value (Amount, Review ID..)]"
+  ephemeral: false
+  enabled: true
+paypal:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Crear un enlace de PayPal para el pago"
+  usage: "paypal [@User] [Mail] [Amount] [Service/Comment]"
+  enabled: true
+invoice:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Crear una factura de PayPal para el usuario mencionado"
+  usage: "invoice [@User] [Recipient Email] [Amount] [Service/Comment]"
+  enabled: true
+getinvoice:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Obtener la información sobre la factura"
+  usage: "getinvoice [Invoice ID]"
+  ephemeral: false
+  enabled: true
+bumpcommission:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Bump Commission Embed"
+  usage: "bumpcommission [#Channel]"
+  ephemeral: false
+  enabled: false
+counters:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageGuild"]
+  description: "Crear los contadores de estadísticas de tickets"
+  usage: "counters"
+  ephemeral: false
+  enabled: true
+status:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Cambiar tu estado a Ausente/Disponible"
+  usage: "status"
+  ephemeral: false
+  enabled: true
+notes:
+  roles: []
+  aliases: ["addnote", "note"]
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Añadir una nota al canal del ticket"
+  usage: "note [Text]"
+  ephemeral: false
+  enabled: true
+channelinfo:
+  roles: []
+  aliases: ["ticketinfo"]
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Obtener la información sobre el canal del ticket"
+  usage: "channelinfo"
+  ephemeral: false
+  enabled: true
+setprofile:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Establecer tu PayPal, horas disponibles y biografía que se muestran en el perfil"
+  usage: "setprofile [paypal | hours | bio] [Value]"
+  ephemeral: false
+  enabled: true
+changecategory:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Cambiar la categoría del ticket"
+  usage: "changecategory [New Category Name/ID]"
+  ephemeral: false
+  enabled: true
+crypto:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Crear un código QR para el pago"
+  usage: "crypto [@User] [Crypto] [Address] [Amount (Currency from config.yml)] [Service/Comment]"
+  enabled: false
+quote:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Realizar un presupuesto para este pedido"
+  usage: "quote [Price] [Time Frame] [Note]"
+  ephemeral: false
+  enabled: false
+balance:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Obtener tu saldo o el de otra persona"
+  usage: "balance [@User]"
+  ephemeral: false
+  enabled: false
+withdraw:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Solicitar el retiro del dinero de tu saldo"
+  usage: "withdraw [Amount]"
+  ephemeral: false
+  enabled: false
+mark:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageMessages"]
+  description: "Marcar la comisión como COMPLETADA"
+  usage: "mark [COMPLETED]"
+  ephemeral: false
+  enabled: true
+calculate:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Calcular la expresión matemática"
+  usage: "calculate [Expression]"
+  ephemeral: false
+  enabled: true
+getproduct:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Descargar un producto mediante ID"
+  usage: "getproduct [Product ID]"
+  ephemeral: true
+  enabled: true
+products:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Obtener la lista de productos disponibles"
+  usage: "products"
+  enabled: true
+setpriority:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: ["ManageGuild"]
+  description: "Establecer la prioridad del canal del ticket"
+  usage: "setpriority [#Channel] [low / normal / high / urgent]"
+  ephemeral: false
+  enabled: true
+prioritylist:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Listar los tickets con prioridad alta o urgente"
+  usage: "prioritylist"
+  ephemeral: false
+  enabled: true
+sellixconnect:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Verificarse como cliente de Sellix.io"
+  usage: "sellixconnect [Order ID]"
+  ephemeral: false
+  enabled: false
+sellixlicense:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Obtener la información sobre la licencia Sellix (ID de pedido)"
+  usage: "sellixlicence [Order ID]"
+  ephemeral: false
+  enabled: false
+sellixproduct:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Ver los detalles del producto Sellix"
+  usage: "sellixproduct [Product Unique ID]"
+  ephemeral: false
+  enabled: false
+tebexconnect:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Verificarse como cliente de Tebex"
+  usage: "tebexconnect [Transaction ID]"
+  ephemeral: false
+  enabled: true
+cstoreconnect:
+  roles: []
+  aliases: []
+  cooldown: 0
+  permissions: []
+  description: "Verificarse como cliente de CraftingStore"
+  usage: "cstore [Transaction ID]"
+  ephemeral: false
+  enabled: false
+eval:
+  roles: []
+  aliases: []
+  # For this Command you also need to be
+  # added into 'eval' field in config.yml
+  cooldown: 0
+  permissions: []
+  description: "Evaular el código JS"
+  usage: "eval [JS Code]"
+  enabled: false

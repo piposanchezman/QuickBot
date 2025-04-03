@@ -1,0 +1,684 @@
+# ________________________________________________
+#
+#          CHAMPION TICKETS EMBEDS FILE
+#
+# Aquí puedes personalizar los Embeds de Bot.
+#
+# Colores Embed acepta Nombres de Colores
+# (RED, GREEN etc.) y HEX (#f1f1f1, #dddddd etc.)
+#
+# Para la nueva línea use \n
+#
+# ________________________________________________
+
+# Título para todos los Embeds
+title: "QuickBot Tickets"
+# Título para Embeds de Sugerencias
+suggestion_title: "Sugerencia"
+# Título para el Embed del Panel
+panel_title: "QuickBot Tickets"
+# Pie de página para todos los Embeds
+footer: "Bot de QuickBot Tickets"
+# Color para errores o respuestas negativas
+error_color: "Red"
+# Color para éxitos o respuestas positivas
+success_color: "Green"
+# Color para otras situaciones
+general_color: "Yellow"
+# Mensaje en el canal del ticket cuando no se usan categorías
+# Placeholders disponibles: <user>, <reason>
+ticket_message: "Hola <user>, este es tu ticket, por favor describe tu problema o pregunta.\nEl personal te atenderá pronto, ¡ten paciencia!"
+# Embed para selección de categoría de ticket
+select_category:
+  description: |
+    ⏳ **Tienes 5 minutos para seleccionar una categoría** ⏳
+    ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+    Por favor elige la categoría que mejor se adapte a tu necesidad del menú desplegable:
+
+    **📌 Categorías disponibles:**
+    ```diff
+    + 🌍 General   → Consultas generales (subcategorías disponibles)
+    + 🚨 Reportes  → Para reportar usuarios/staff (con pruebas)
+    + 💳 Tebex     → Problemas con compras/tienda
+    + 🐞 Bugs      → Reportar errores del servidor
+    ```
+
+    ⚠️ Selecciona cuidadosamente para agilizar tu atención.
+  fields: []
+
+select_subcategory:
+  description: |
+    ⏳ **Tienes 5 minutos para seleccionar una subcategoría** ⏳
+    ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+    Esta categoría contiene subcategorías específicas:
+
+    **📌 Subcategorías disponibles:**
+    <subcategories>
+
+    ℹ️ Selecciona la que mejor describa tu consulta para recibir ayuda más especializada.
+  fields: []
+
+panel_message: |
+  **🎫 Sistema de Tickets del Servidor**
+  ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+  Abre un ticket para recibir asistencia personalizada según tu necesidad:
+
+  **📌 Categorías principales:**
+  ```diff
+  + 🌍 General    → Consultas generales divididas en:
+     ├─ 📸 Media     → Solicitar rango para creadores de contenido
+     ├─ 💼 Servicios → Ofrecer servicios profesionales al servidor
+     └─ ❓ Otros     → Consultas diversas no categorizadas
+  + 🚨 Reportes   → Reportar usuarios o staff (se requieren pruebas)
+  + 💳 Tebex      → Soporte con compras en nuestra tienda (ID de transacción)
+  + 🐞 Bugs       → Reportar errores técnicos (indica cómo reproducirlos)
+  ```
+  - Tickets falsos o malintencionados serán sancionados
+  - Proporciona toda la información requerida
+  - Sé paciente, el staff atenderá tu ticket en orden
+  - Usa la categoría correcta para agilizar tu atención
+# Configuración del Embed del panel
+panel:
+  footer: "QuickBot Tickets"
+  # Imagen sobre el pie de página
+  image:
+    enabled: false
+    url: ""
+  # Miniatura en esquina superior derecha
+  thumbnail:
+    enabled: false
+    url: ""
+# Configuración del Embed de tickets
+ticket:
+  footer: "QuickBot Tickets"
+  # Imagen sobre el pie de página
+  image:
+    enabled: false
+    url: ""
+  # Miniatura en esquina superior derecha
+  thumbnail:
+    enabled: false
+    url: ""
+# Configuración del Embed de confirmación de cierre
+close:
+  # Imagen sobre el pie de página
+  image:
+    enabled: false
+    url: ""
+  # Miniatura en esquina superior derecha
+  thumbnail:
+    enabled: false
+    url: ""
+# Embeds para comandos de servicio
+service:
+  paypal:
+    title: "PayPal"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <userId>, <amount>, <amountWithTax>, <service>, <currencySymbol>
+    # , <currency>, <taxList>, <seller> & <sellerId>
+    description: "Para pagar tu pedido sigue el enlace a continuación."
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <userId>, <amount>, <amountWithTax>, <service>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <taxList>, <seller> & <sellerId>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Vendedor"
+        description: "<seller>"
+      - title: "Usuario"
+        description: "<user>"
+      # El título soporta <currency>
+      - title: "Precio (<currency>)"
+        description: "<currencySymbol><amount>"
+      # El título soporta <currency>
+      - title: "Precio con impuestos (<currency>)"
+        description: "<currencySymbol><amountWithTax>"
+      - title: "Lista de impuestos"
+        description: "<taxList>"
+      - title: "Servicio"
+        description: "<service>"
+  invoice_create:
+    title: "Factura Creada"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <userId>, <amount>, <service>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <invoiceId>, <mail> (Correo del vendedor), <taxList> & <seller>
+    description: "Para pagar tu factura haz clic en el botón"
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <userId>, <amount>, <amountWithTax>, <service>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <invoiceId>, <mail> (Correo del vendedor), <taxList> & <seller>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Vendedor"
+        description: "<seller>"
+      - title: "Usuario"
+        description: "<user>"
+      # El título soporta <currency>
+      - title: "Precio sin Impuestos (<currency>)"
+        description: "<currencySymbol><amount>"
+      # El título soporta <currency>
+      - title: "Precio con Impuestos (<currency>)"
+        description: "<currencySymbol><amountWithTax>"
+      - title: "Servicio"
+        description: "<service>"
+  invoice_get:
+    title: "Información de Factura"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <userId>, <amount>, <service>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <invoiceId>, <sellerMail>, <status>, <tos>, <notes>, <seller> & <sellerId>
+    description: "Información sobre la Factura <invoiceId>"
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <userId>, <amount>, <service>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <invoiceId>, <sellerMail>, <status>, <tos>, <notes>, <seller> & <sellerId>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Vendedor"
+        description: "<seller>"
+      - title: "Usuario"
+        description: "<user>"
+      # El título soporta <currency>
+      - title: "Precio (<currency>)"
+        description: "<currencySymbol><amount>"
+      - title: "Servicio"
+        description: "<service>"
+  invoice_paid:
+    title: "Factura pagada"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <userId>, <amount>, <service>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <invoiceId>, <mail> (Correo del vendedor), <taxList> & <seller>
+    description: "La factura (<invoiceId>) creada por <seller> ha sido pagada.\nMonto total: <currencySymbol><amount>"
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <userId>, <amount>, <service>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <invoiceId>, <mail> (Correo del vendedor), <taxList> & <seller>
+    # Para usar solo descripción establecer fields: []
+    fields: []
+  review:
+    title: "Reseña"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <author>, <authorId>, <user>, <userId>, <review>, <numRating>, <date>, <reviewId> & <comment>
+    description: "Has evaluado exitosamente al Vendedor."
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <author>, <authorId>, <user>, <userId>, <review>, <numRating>, <date>, <reviewId> & <comment>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Autor"
+        description: "<author>"
+      - title: "Usuario"
+        description: "<user>"
+      - title: "Calificación"
+        description: "<review>"
+      - title: "Comentario"
+        description: "<comment>"
+  review_announce:
+    title: "Reseña Añadida"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <author>, <authorId>, <user>, <userId>, <review>, <numRating>, <reviewId> & <comment>
+    description: ""
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <author>, <authorId>, <user>, <userId>, <review>, <numRating>, <reviewId> & <comment>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Autor"
+        description: "<author>"
+      - title: "Usuario"
+        description: "<user>"
+      - title: "Calificación"
+        description: "<review>"
+      - title: "Comentario"
+        description: "<comment>"
+  profile:
+    title: "Perfil"
+    color: "Yellow"
+    # Descripción del Embed
+    # Marcadores disponibles: <reviews>, <totalRating>, <user>, <userId>, <numRating>, <bio>, <status>,
+    # <paypal>, <hours>, <claimed>, <responseTime> & <portfolio>
+    description: "Perfil del Usuario <user>"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <reviews>, <totalRating>, <user>, <userId>, <numRating>, <bio>, <status>,
+    # <paypal>, <hours>, <claimed>, <responseTime> & <portfolio>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Usuario"
+        description: "<user>"
+      - title: "Calificación Total"
+        description: "<totalRating> `(<numRating>)`"
+      - title: "Estado del Freelancer"
+        description: "<status>"
+      - title: "PayPal del Freelancer"
+        description: "<paypal>"
+      - title: "Horas Disponibles"
+        description: "<hours>"
+      - title: "Últimas Reseñas"
+        description: "<reviews>"
+      - title: "Biografía"
+        description: "```<bio>```"
+  review_info:
+    title: "Información de Reseña"
+    color: "#4CAAFF"
+    # Descripción del Embed
+    # Marcadores disponibles: <id>, <author>, <user>, <authorId>, <userId>, <comment>, <rating> & <date>
+    description: ">>> **ID:** <id>\n**Usuario:** <user>\n**Autor:** <author>\n**Calificación:** <rating>\n**Comentario:** <comment>"
+    footer: true
+  crypto:
+    title: "Criptomoneda"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <userId>, <amount>, <cryptoAmount>, <service>, <address>
+    # <currencySymbol> (USD, EUR etc. - config > currency), <currency>, <symbol> (Crypto - BTC, ETH..), <seller> & <sellerId>
+    description: "Para pagar tu pedido escanea el código QR."
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <userId>, <amount>, <cryptoAmount>, <service>, <address>
+    # <currencySymbol> (USD, EUR etc. - config > currency), <currency>, <symbol> (Crypto - BTC, ETH..), <seller> & <sellerId>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Vendedor"
+        description: "<seller>"
+      - title: "Usuario"
+        description: "<user>"
+      # El título soporta <currency>
+      - title: "Precio (<currency>)"
+        description: "<currencySymbol><amount>"
+      # El título soporta <symbol>
+      - title: "Precio (<symbol>)"
+        description: "<cryptoAmount>"
+      - title: "Servicio"
+        description: "<service>"
+  quote:
+    title: "Nuevo Presupuesto Recibido"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <userId>, <client>, <currency>, <currencySymbol>, <notes>, <rating>
+    # , <timeFrame>, <price>, <priceWithTax>, <bio>, <portfolio> & <availableHours>
+    description: "Se ha recibido un presupuesto de <user>."
+    color: "#4CAAFF"
+    footer: false
+    thumbnail: false
+    inline: true
+    # Marcadores disponibles: <user>, <userId>, <client>, <currency>, <currencySymbol>, <notes>, <rating>
+    # , <timeFrame>, <price>, <priceWithTax>, <bio>, <portfolio> & <availableHours>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Freelancer"
+        description: "<user>"
+      - title: "Precio"
+        description: "<currencySymbol><price>"
+      # El título soporta <currency>
+      - title: "Plazo de Tiempo"
+        description: "<timeFrame>"
+      # El título soporta <symbol>
+      - title: "Notas"
+        description: "<notes>"
+  quote_accepted:
+    title: "Presupuesto Aceptado"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <currency>, <currencySymbol>, <timeFrame>, <price>, <priceWithTax>
+    description: "El presupuesto de <user> ha sido aceptado."
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <currency>, <currencySymbol>, <timeFrame>, <price>, <priceWithTax>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Freelancer"
+        description: "<user>"
+      - title: "Precio"
+        description: "<currencySymbol><price>"
+      # El título soporta <currency>
+      - title: "Plazo de Tiempo"
+        description: "<timeFrame>"
+      # El título soporta <symbol>
+      - title: "Notas"
+        description: "<notes>"
+  quote_declined:
+    title: "Presupuesto Rechazado"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <freelancer>, <currency>, <currencySymbol>, <timeFrame>, <price>, <priceWithTax>, <reason>
+    description: "El presupuesto de <freelancer> ha sido rechazado por <user>."
+    color: "Red"
+    footer: false
+    thumbnail: false
+    inline: true
+    # Marcadores disponibles: <user>, <freelancer>, <currency>, <currencySymbol>, <timeFrame>, <price>, <priceWithTax>, <reason>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Precio"
+        description: "<currencySymbol><price>"
+      # El título soporta <currency>
+      - title: "Plazo de Tiempo"
+        description: "<timeFrame>"
+      # El título soporta <symbol>
+      - title: "Notas"
+        description: "<notes>"
+      - title: "Razón"
+        description: "<reason>"
+  message_client:
+    title: "Mensaje del Freelancer"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <message>
+    description: "El freelancer <user> te ha hecho una pregunta, puedes responder usando el botón."
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <message>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Pregunta"
+        description: "<message>"
+  commission_reply:
+    title: "Respuesta de Comisión"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <message>, <prevMessage> & <channel>
+    description: "Has recibido una respuesta sobre la Comisión <channel> de <user>."
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <message>, <prevMessage> & <channel>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Respuesta"
+        description: "<message>"
+  new_commission:
+    title: "Nueva Comisión Recibida"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>
+    description: "Se ha recibido una comisión de <user>, usa los botones para tomar una decisión."
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+  withdraw:
+    title: "Nueva Solicitud de Retiro"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <amount>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <mail> & <balance>
+    description: "El freelancer ha solicitado un retiro de fondos"
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <amount>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <mail> & <balance>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Usuario"
+        description: "<user>"
+      - title: "Correo para Retiro"
+        description: "<mail>"
+      # El título soporta <currency>
+      - title: "Monto (<currency>)"
+        description: "<currencySymbol><amount>"
+      - title: "Balance del Usuario"
+        description: "<currencySymbol><balance>"
+  withdraw_accepted:
+    title: "Solicitud de Retiro Aceptada"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <amount>, <freelancer>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <mail> & <balance>
+    description: "La solicitud de retiro del freelancer <user> ha sido aceptada"
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <amount>, <freelancer>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <mail> & <balance>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Freelancer"
+        description: "<freelancer>"
+      - title: "Aceptado por"
+        description: "<user>"
+      # El título soporta <currency>
+      - title: "Monto (<currency>)"
+        description: "<currencySymbol><amount>"
+      - title: "Balance del Usuario"
+        description: "<currencySymbol><balance>"
+  withdraw_denied:
+    title: "Solicitud de Retiro Rechazada"
+    # Descripción del Embed (dejar vacío para desactivar)
+    # Marcadores disponibles: <user>, <amount>, <freelancer>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <mail> & <balance>
+    description: "La solicitud de retiro del freelancer <user> ha sido rechazada"
+    color: "#4CAAFF"
+    footer: true
+    thumbnail: true
+    inline: true
+    # Marcadores disponibles: <user>, <amount>, <freelancer>, <currencySymbol> (USD, EUR etc. - config > currency)
+    # , <currency>, <mail> & <balance>
+    # Para usar solo descripción establecer fields: []
+    fields:
+      - title: "Freelancer"
+        description: "<freelancer>"
+      - title: "Rechazado por"
+        description: "<user>"
+      # El título soporta <currency>
+      - title: "Monto (<currency>)"
+        description: "<currencySymbol><amount>"
+      - title: "Balance del Usuario"
+        description: "<currencySymbol><balance>"
+# Mensaje DM de cierre de ticket al autor (sin transcripción)
+ticket_close_dm:
+  title: "Tu ticket ha sido cerrado"
+  # Descripción del Embed (dejar vacío para desactivar)
+  # Marcadores disponibles: <author>, <authorId>, <reason>, <closedBy>, <closedById>, <ticketId> & <channel>
+  description: "Tu ticket con ID <ticketId> (<channel>) ha sido cerrado con la razón: <reason>"
+  color: "#4CAAFF"
+  footer: false
+  thumbnail: false
+  inline: true
+  # Marcadores disponibles: <author>, <authorId>, <reason>, <closedBy>, <closedById>, <ticketId> & <channel>
+  # Para usar solo descripción establecer fields: []
+  fields: []
+# Embed de Transcripción DM
+dm_transcript:
+  title: "Ticket Cerrado"
+  color: "Yellow"
+  # Descripción del Embed
+  # Marcadores disponibles: <closedBy>, <closedById>, <channelId>, <channelName>, <openedAt>, <category>,
+  # <closedAt>, <author>, <authorId>, <ticketId>, <transcriptCode> (Contraseña para SelfHost Transcripts) & <reason>
+  description: "El ticket con ID #<ticketId> ha sido cerrado."
+  footer: true 
+  thumbnail: true
+  inline: true
+  # Marcadores disponibles: <closedBy>, <closedById>, <channelId>, <channelName>, <openedAt>, <category>,
+  # <closedAt>, <author>, <authorId>, <ticketId> (También username para SelfHost Transcripts), <transcriptCode> (Contraseña para SelfHost Transcripts) & <reason>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "Autor del Ticket"
+      description: "<author>"
+    - title: "Código de Acceso Selfhost (Si está activado)"
+      description: "||<transcriptCode>||"
+    - title: "Cerrado Por"
+      description: "<closedBy>"
+    - title: "ID del Canal"
+      description: "<channelId>"
+    - title: "ID del Ticket"
+      description: "<ticketId>"
+    - title: "Abierto El"
+      description: "<openedAt>" 
+    - title: "Cerrado El"
+      description: "<closedAt>"
+# Embed de Log de Transcripción
+transcript_log:
+  title: "Ticket Cerrado"
+  color: "Yellow"
+  # Descripción del Embed
+  # Marcadores disponibles: <closedBy>, <closedById>, <channelId>, <channelName>, <openedAt>, <category>,
+  # <closedAt>, <author>, <authorId>, <ticketId>, <transcriptCode> (Contraseña para SelfHost Transcripts) & <reason>
+  description: "El ticket con ID #<ticketId> ha sido cerrado."
+  footer: true 
+  thumbnail: true
+  inline: true
+  # Marcadores disponibles: <closedBy>, <closedById>, <channelId>, <channelName>, <openedAt>, <category>,
+  # <closedAt>, <author>, <authorId>, <ticketId> (También username para SelfHost Transcripts), <transcriptCode> (Contraseña para SelfHost Transcripts) & <reason>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "Autor del Ticket"
+      description: "<author>"
+    - title: "Código de Acceso Selfhost (Si está activado)"
+      description: "||<transcriptCode>||"
+    - title: "Cerrado Por"
+      description: "<closedBy>"
+    - title: "ID del Canal"
+      description: "<channelId>"
+    - title: "ID del Ticket"
+      description: "<ticketId>"
+    - title: "Abierto El"
+      description: "<openedAt>" 
+    - title: "Cerrado El"
+      description: "<closedAt>"
+# Embed de Sugerencias
+suggestion:
+  title: "Nueva Sugerencia"
+  color: "Yellow"
+  # Descripción del Embed
+  # Marcadores disponibles: <author>, <suggestions>, <date>, <yes_vote>, <no_vote>
+  description: "Se ha enviado una nueva sugerencia."
+  footer: true 
+  thumbnail: true
+  inline: false
+  # Marcadores disponibles: <author>, <suggestions>, <date>, <yes_vote>, <no_vote>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "Autor"
+      description: "<author>"
+    - title: "Sugerencia"
+      description: "<suggestion>"
+    - title: "Votos a Favor"
+      description: "<yes_vote>"
+    - title: "Votos en Contra"
+      description: "<no_vote>"
+# Embed de Cálculo
+calculate:
+  title: "Calculadora"
+  color: "Yellow"
+  # Descripción del Embed
+  # Marcadores disponibles: <expression>, <result>
+  description: "Tu problema matemático ha sido calculado."
+  footer: true 
+  thumbnail: false
+  inline: true
+  # Marcadores disponibles: <expression>, <result>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "Expresión"
+      description: "<expression>"
+    - title: "Resultado"
+      description: "```js\n<result>\n```"
+# Comando ChannelInfo
+channel_info:
+  title: "Información del Canal"
+  color: "Yellow"
+  footer: true
+  # Nombres de campos
+  fields:
+    claimed: "Reclamado" # Dejar vacío para desactivar
+    notes: "Notas"
+    ticketId: "ID del Ticket"
+  # Mostrar campos de Preguntas y Respuestas
+  questions: true
+help:
+  title: "🚀 · Menú de Ayuda"
+  # Descripción del Embed (dejar vacío para desactivar)
+  # Marcadores disponibles: <member>, <service>, <utility>, <tickets> & <prefix>
+  description: ""
+  color: "#4CAAFF"
+  footer: true
+  thumbnail: true
+  inline: false
+  # Marcadores disponibles: <member>, <service>, <utility>, <tickets> & <prefix>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "👤 ･ Miembro"
+      description: "<member>"
+    - title: "💵 ･ Servicio"
+      description: "<service>"
+    - title: "🔨 ･ Utilidades"
+      description: "<utility>"
+    - title: "🎫 ･ Tickets"
+      description: "<tickets>"
+# Información de Comando
+command_info:
+  title: "🚀 · Información del Comando"
+  # Descripción del Embed (dejar vacío para desactivar)
+  # Marcadores disponibles: <name>, <description>, <usage>, <category> & <prefix>
+  description: ""
+  color: "#4CAAFF"
+  footer: true
+  thumbnail: true
+  inline: true
+  # Marcadores disponibles: <name>, <description>, <usage>, <category> & <prefix>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "Nombre del Comando"
+      description: "`<name>`"
+    - title: "Descripción"
+      description: "`<description>`"
+    - title: "Uso"
+      description: "`<prefix><usage>`"
+    - title: "Categoría"
+      description: "`<category>`"
+# Información de Licencia Sellix
+license_info:
+  title: "Información de Licencia"
+  # Descripción del Embed (dejar vacío para desactivar)
+  # Marcadores disponibles: <name>, <mail>, <product>, <licence>, <price>
+  # , <discord_name> (Usuario Verificado de Discord) & <gateway>
+  description: ""
+  color: "#4CAAFF"
+  footer: true
+  thumbnail: true
+  inline: true
+  # Marcadores disponibles: <name>, <mail>, <product>, <licence>, <price>
+  # , <discord_name> (Usuario Verificado de Discord) & <gateway>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "Clave de Licencia"
+      description: "||`<license>`||"
+    - title: "Título del Producto"
+      description: "`<product>`"
+    - title: "Nombre del Comprador"
+      description: "`<name>`"
+    - title: "Email del Comprador"
+      description: "`<mail>`"
+# Información de Producto Sellix
+sellix_product:
+  title: "Producto Sellix"
+  # Descripción del Embed (dejar vacío para desactivar)
+  # Marcadores disponibles: <name>, <description>, <price>, <stock> & <tos>
+  description: ""
+  color: "#4CAAFF"
+  footer: true
+  thumbnail: true
+  inline: true
+  # Marcadores disponibles: <name>, <description>, <price>, <stock> & <tos>
+  # Para usar solo descripción establecer fields: []
+  fields:
+    - title: "Nombre"
+      description: "<name>"
+    - title: "Descripción"
+      description: "`<description>`"
+    - title: "Precio"
+      description: "$<price>"
+    - title: "Stock"
+      description: "**<stock>**"

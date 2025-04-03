@@ -1,0 +1,258 @@
+# ________________________________________________
+#
+#       CHAMPION TICKETS CATEGORIES FILE
+#
+# Here you can customize Ticket Categories
+#
+# ________________________________________________
+
+# Category Name
+- name: "General"
+  placeholder: "🌍 Selecciona una subcategoría según tu necesidad"
+  type: "SUBCATEGORY_PARENT"
+  id: "general_category"
+  emoji: "🌍"
+  button_color: "Primary"
+  panel:
+    title: "🌍 Categoría General" 
+    description: "Selecciona la subcategoría que mejor se adapte a tu consulta:\n\n🔹 **Media** - Solicitar rango Creador de Contenido\n🔹 **Staff** - Postulación para staff (requisitos)\n🔹 **Servicios** - Ofrecer servicios al servidor\n🔹 **Ayuda** - Consultas generales"
+    thumbnail: ""
+    image: ""
+    color: "Blue"
+  subcategories:
+    - name: "Ayuda"
+      placeholder: "❔ Consultas generales - Describe tu duda"
+      id: "general_otros"
+      emoji: "❔"
+      roles: []
+      type: "SUPPORT"
+      ask_questions: true
+      ask_review: true
+      channel_name: "❔・consulta-<username>"
+      category: ""
+      fallback_categories: []
+      button_color: "Primary"
+      limit: 1
+      embed:
+        title: "❔ Consulta General"
+        description: "**Subcategoría:** Ayuda\n\nHola <user>, describe tu consulta con detalle para que podamos ayudarte."
+        thumbnail: ""
+        image: ""
+        color: "Blue"
+      panel:
+        title: "❔ Ayuda General"
+        description: "Usa esta opción para cualquier consulta que no encaje en otras categorías."
+        thumbnail: ""
+        image: ""
+        color: "Blue"
+      questionsList:
+        - name: "Descripción"
+          question: "Describe qué necesitas saber o en qué necesitas ayuda:"
+          required: true
+        - name: "Información adicional"
+          question: "Proporciona cualquier información relevante:"
+          required: false
+    - name: "Media"
+      placeholder: "🎥 Solicitar rango Creador - Adjunta tus canales"
+      id: "general_media"
+      emoji: "🎥"
+      roles: []
+      type: "SUPPORT"
+      ask_questions: true
+      ask_review: true
+      channel_name: "🎥・media-<username>"
+      category: ""
+      fallback_categories: []
+      button_color: "Primary"
+      limit: 1
+      embed:
+        title: "🎥 Solicitud de Rango Creador"
+        description: "**Subcategoría:** Solicitud Media\n\nHola <user>, para aplicar al rango Creador de Contenido:\n\n1. Adjunta tus canales (YouTube, Twitch, etc.)\n2. Indica tu nick en el juego\n3. Explica por qué mereces el rango\n\nEl equipo revisará tu solicitud."
+        thumbnail: ""
+        image: ""
+        color: "Blue"
+      panel:
+        title: "🎥 Rango Creador de Contenido"
+        description: "Usa esta opción para solicitar el rango Media como creador de contenido.\n\nDebes tener canales activos y contenido relacionado con el servidor."
+        thumbnail: ""
+        image: ""
+        color: "Blue"
+      questionsList:
+        - name: "Canales"
+          question: "Enlaces a tus canales (YouTube, TikTok, Kick o Twitch):"
+          required: true
+        - name: "Nick en el juego"
+          question: "Tu nombre exacto en el servidor:"
+          required: true
+        - name: "Motivación"
+          question: "¿Por qué deberías obtener el rango Creador de Contenido?"
+          required: true
+    - name: "Staff"
+      placeholder: "⚠️ Postulaciones cerradas - Atento a <#721819487875367063>"
+      id: "general_staff"
+      emoji: "🛑"
+      roles: []
+      type: "SUPPORT"
+      ask_questions: false
+      ask_review: false
+      channel_name: "🛑・staff-<username>"
+      category: ""
+      fallback_categories: []
+      button_color: "Secondary"
+      limit: 1
+      embed:
+        title: "🛑 Postulaciones de Staff Cerradas"
+        description: "Actualmente no estamos aceptando nuevas postulaciones.\n\nSigue <#721819487875367063> para anuncios sobre aperturas.\n\nGracias por tu interés."
+        thumbnail: ""
+        image: ""
+        color: "Grey"
+      panel:
+        title: "🛑 Postulaciones Cerradas"
+        description: "Las postulaciones para staff están temporalmente cerradas.\n\nRevisa <#721819487875367063> para futuras aperturas."
+        thumbnail: ""
+        image: ""
+        color: "Grey"
+      questionsList: []
+    - name: "Servicios"
+      placeholder: "💼 Ofrecer servicios - Detalla tu propuesta"
+      id: "general_servicios"
+      emoji: "💼"
+      roles: []
+      type: "SUPPORT"
+      ask_questions: true
+      ask_review: true
+      channel_name: "💼・servicio-<username>"
+      category: ""
+      fallback_categories: []
+      button_color: "Primary"
+      limit: 1
+      embed:
+        title: "💼 Oferta de Servicios"
+        description: "**Subcategoría:** Propuesta de servicios\n\nHola <user>, por favor detalla:\n\n1. Qué servicio ofreces\n2. Tu experiencia relevante\n3. Condiciones (precios, plazos)"
+        thumbnail: ""
+        image: ""
+        color: "Green"
+      panel:
+        title: "💼 Ofertas de Servicio"
+        description: "Usa esta opción para ofrecer servicios profesionales al servidor.\nEjemplos: Diseño gráfico, desarrollo web o creación de contenido."
+        thumbnail: ""
+        image: ""
+        color: "Green"
+      questionsList:
+        - name: "Servicio ofrecido"
+          question: "¿Qué servicio estás ofreciendo? Describe con detalle:"
+          required: true
+        - name: "Portfolio/experiencia"
+          question: "Muestra ejemplos de trabajos anteriores o tu experiencia:"
+          required: true
+        - name: "Condiciones"
+          question: "Indica tus condiciones (precios, plazos, etc.):"
+          required: false
+
+- name: "Reportes"
+  placeholder: "📌 Reporta a un usuario/staff - Proporciona pruebas"
+  type: "SUPPORT"
+  channel_name: "⚠️・reporte-<username>"
+  id: "reportes_category"
+  emoji: "⚠️"
+  category: ""
+  fallback_categories: []
+  roles: []
+  ask_questions: true
+  ask_review: true
+  button_color: "Danger"
+  limit: 1
+  embed:
+    title: "🚨 Ticket de Reporte"
+    description: "**Categoría:** Reporte\n\nHola <user>, el staff revisará tu reporte.\n\nPor favor:\n1. Describe el problema\n2. Adjunta pruebas\n3. Espera pacientemente"
+    thumbnail: ""
+    image: ""
+    color: "Red"
+  panel:
+    title: "🚨 Sistema de Reportes"
+    description: "Usa esta categoría para reportar usuarios o staff que incumplan normas.\n❗ Reportes falsos pueden resultar en sanción."
+    thumbnail: ""
+    image: ""
+    color: "Red"
+  questionsList:
+    - name: "Usuario/staff a reportar"
+      question: "¿Quién estás reportando? (@ o nombre exacto)"
+      required: true
+    - name: "Descripción"
+      question: "Describe lo ocurrido con todos los detalles:"
+      required: true
+    - name: "Pruebas"
+      question: "Adjunta enlaces a capturas/videos:"
+      required: false
+
+- name: "Tebex"
+  placeholder: "💳 Problemas con compras - Incluye ID de transacción"
+  type: "SUPPORT"
+  channel_name: "💸・tebex-<username>"
+  id: "tebex_category"
+  emoji: "💳"
+  category: ""
+  fallback_categories: []
+  roles: []
+  ask_questions: true
+  ask_review: true
+  button_color: "Success"
+  limit: 1
+  embed:
+    title: "💸 Soporte de Tebex"
+    description: "**Categoría:** Problema con compra\n\nHola <user>, el soporte revisará tu caso.\n\nPor favor:\n1. Ten tu ID de transacción\n2. Describe el problema"
+    thumbnail: ""
+    image: ""
+    color: "Green"
+  panel:
+    title: "💸 Soporte de Compras"
+    description: "Usa esta categoría para problemas con compras en nuestra tienda.\nℹ️ Necesitarás tu ID de transacción."
+    thumbnail: ""
+    image: ""
+    color: "Green"
+  questionsList:
+    - name: "ID de transacción"
+      question: "Pega la ID de tu transacción (email de confirmación):"
+      required: true
+    - name: "Descripción"
+      question: "Describe qué compraste y qué problema tienes:"
+      required: true
+    - name: "Nombre de usuario"
+      question: "¿Cuál es tu nombre exacto en el servidor?"
+      required: true
+
+- name: "Bugs"
+  placeholder: "🐞 Reportar errores - Describe cómo reproducirlo"
+  type: "SUPPORT"
+  channel_name: "🐛・bug-<username>"
+  id: "bugs_category"
+  emoji: "🐞"
+  category: ""
+  fallback_categories: []
+  roles: []
+  ask_questions: true
+  ask_review: false
+  button_color: "Primary"
+  limit: 3
+  embed:
+    title: "🐛 Reporte de Bug"
+    description: "**Categoría:** Reporte de error\n\nHola <user>, gracias por reportar.\n\nPara ayudarnos:\n1. Describe cómo reproducirlo\n2. Adjunta capturas si es posible"
+    thumbnail: ""
+    image: ""
+    color: "Blue"
+  panel:
+    title: "🐞 Sistema de Reporte de Bugs"
+    description: "Reporta aquí cualquier error en el servidor.\nLos mejores reportes incluyen pasos para reproducirlo."
+    thumbnail: ""
+    image: ""
+    color: "Blue"
+  questionsList:
+    - name: "Descripción"
+      question: "Describe qué está fallando y qué debería ocurrir:"
+      required: true
+    - name: "Pasos"
+      question: "Explica cómo reproducir el error (si lo sabes):"
+      required: false
+    - name: "Capturas"
+      question: "Adjunta enlaces a capturas o videos:"
+      required: false
