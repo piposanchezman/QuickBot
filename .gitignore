@@ -1,2 +1,6 @@
-node_modules
 configs/config.yml
+node_modules
+products
+transcripts
+errors.txt
+info.txt
