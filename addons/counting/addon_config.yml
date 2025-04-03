@@ -1,22 +1,21 @@
 # Configuración básica
 enabled: true
 counting_channel: "1355900369716379858"  # ID del canal de counting
-message_timeout: 10000                   # Tiempo en ms para borrar mensajes (0 para desactivar)
+message_timeout: 5000                   # Tiempo en ms para borrar mensajes (0 para desactivar)
 reset_on_break: false                    # Reiniciar conteo al fallar
 
 # Configuración de roles
 staff_roles: 
-  - "795062815257395270"  # Rol Staff 1
-  - "755204260773494875"  # Rol Staff 2
+  - "771928996694589481"  # Rol Head Staff
 
 # Límites de números consecutivos por rol
 role_settings:
-  - role_id: "795062815257395270"  # Rol Staff 1
-    max_consecutive: 3
-  - role_id: "755204260773494875"  # Rol Staff 2
-    max_consecutive: 5
-  - role_id: "1083305519369953312" # Rol VIP
+  - role_id: "1083305519369953312" # Rol Personalizado
     max_consecutive: 7
+  - role_id: "755204260773494875"  # Rol Nitro Boost
+    max_consecutive: 5
+  - role_id: "795062815257395270"  # Rol Donador
+    max_consecutive: 3
 
 # Colores para los embeds (hexadecimal o nombre)
 embed_colors:
