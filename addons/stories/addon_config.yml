@@ -1,0 +1,36 @@
+# Configuración básica
+enabled: true
+story_channel: "1355900182323265596"  # ID del canal para historias
+cooldown: 5000     # Tiempo de espera entre contribuciones (ms)
+max_tokens: 100    # Máximo de tokens para respuestas de IA
+min_chars: 10      # Mínimo de caracteres para contribuciones
+max_chars: 300     # Máximo de caracteres para contribuciones
+model: "deepseek/deepseek-chat-v3-0324:free"  # Modelo de IA a usar
+
+# Colores para los embeds
+embed_colors:
+  info: "#3498db"
+  success: "#00FF00"
+  error: "#FF0000"
+  warning: "#FFA500"
+
+# Mensajes personalizables
+messages:
+  story_start: "**¡Comienza la historia colaborativa!**\n\n📜 **Normas:**\n1. Escribe un mensaje para continuar la historia\n2. Espera tu turno (la IA responderá después de cada contribución)\n3. Mantén el contenido apropiado\n\nLa historia comienza así:"
+  story_rules: "✍️ **Cómo participar:**\n- Escribe tu continuación en este canal\n- Solo se aceptará 1 mensaje por turno\n- La IA responderá después de cada contribución válida"
+  story_stopped: "**¡Historia finalizada!**\n\nAquí tienes el resultado final:"
+  story_status: "📊 **Estado de la historia actual**"
+  no_story: "No hay ninguna historia activa actualmente"
+  story_active: "Ya hay una historia en progreso"
+  processing: "🔄 Procesando tu contribución..."
+  error_processing: "❌ Error al procesar tu contribución. Inténtalo de nuevo."
+  cooldown_active: "⏳ Espera un momento antes de enviar otra contribución"
+  waiting_ia: "⏳ La IA está generando una respuesta. Espera antes de contribuir."
+  ia_failed: "⚠️ **La IA no pudo contribuir a la historia**\n\n¡Los usuarios pueden continuar la historia normalmente!"
+  ia_error: "⚠️ **Error al conectar con la IA**\n\nLa historia continuará sin contribución de la IA esta vez."
+  message_too_short: "❌ Tu mensaje es demasiado corto (mínimo {min} caracteres)"
+  message_too_long: "❌ Tu mensaje es demasiado largo (máximo {max} caracteres)"
+  active_participants: "**Usuarios participantes:** {count}"
+  last_contributor: "**Último contribuidor:** {user}\n**Último mensaje:** {message}"
+  top_contributors: "**Top 5 contribuidores**"
+  no_data: "No hay datos aún"
