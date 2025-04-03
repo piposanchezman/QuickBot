@@ -95,7 +95,7 @@ loadStoryState();
 // Cliente OpenAI
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
-  apiKey: "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",
+  apiKey: "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",
   defaultHeaders: {
     "HTTP-Referer": "http://tienda.quickland.net/",
     "X-Title": "QuickLand Network",
