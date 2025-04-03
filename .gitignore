@@ -4,3 +4,5 @@ products
 transcripts
 errors.txt
 info.txt
+package-lock.json
+package.json
