@@ -6,7 +6,7 @@ max_tokens: 50    # Máximo de tokens para respuestas de IA
 min_chars: 10      # Mínimo de caracteres para contribuciones
 max_chars: 300     # Máximo de caracteres para contribuciones
 model: "deepseek/deepseek-chat-v3-0324:free"  # Modelo de IA a usar
-baseTone: "misterioso/fantástico/intrigante", # Tono base de la historia
+baseTone: "misterioso/fantástico/intrigante" # Tono base de la historia
 
 # Colores para los embeds
 embed_colors:
