@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType } = require('discord.js');
 const { set: setCommand } = require("../../handlers/commands");
 const { set: setEvent } = require("../../handlers/events");
 const { readFileSync, writeFileSync, existsSync } = require('fs');
@@ -39,7 +39,6 @@ function saveState() {
   writeFileSync(statePath, JSON.stringify(autorolesData, null, 2));
 }
 
-// Comando para configurar mensajes de auto-roles
 module.exports.run = (client) => {
   if (!config.enabled) return;
 
@@ -63,7 +62,7 @@ module.exports.run = (client) => {
         { label: "Género", value: "gender" },
         { label: "Edad", value: "age" },
         { label: "País", value: "country" },
-        { label: "Modalidades", value: "gamemode" }
+        { label: "Modalidad de juego", value: "game_mode" }
       ];
 
       const selectMenu = new ActionRowBuilder().addComponents(
@@ -94,8 +93,9 @@ module.exports.run = (client) => {
       .map(role => ({ label: role.name, value: role.id }));
 
     if (roles.length === 0) {
-      return interaction.reply({
+      return interaction.update({
         content: "❌ No hay roles configurados en el servidor",
+        components: [],
         ephemeral: true
       });
     }
@@ -105,8 +105,8 @@ module.exports.run = (client) => {
         .setCustomId(`autoroles_roles_${type}`)
         .setPlaceholder('Selecciona los roles para este tipo')
         .setMinValues(1)
-        .setMaxValues(roles.length)
-        .addOptions(roles)
+        .setMaxValues(Math.min(25, roles.length)) // Discord limita a 25 opciones
+        .addOptions(roles.slice(0, 25)) // Tomar solo los primeros 25 roles
     );
 
     await interaction.update({
@@ -129,7 +129,7 @@ module.exports.run = (client) => {
     autorolesData[channel.id][type] = roleIds;
     saveState();
 
-    // Crear embed con emojis correspondientes
+    // Crear embed
     const embed = new EmbedBuilder()
       .setTitle(config.messages[`${type}_title`] || `Selecciona tu ${type}`)
       .setDescription(config.messages[`${type}_description`] || "Reacciona para obtener tu rol");
@@ -137,20 +137,20 @@ module.exports.run = (client) => {
     // Enviar mensaje
     const message = await channel.send({ embeds: [embed] });
 
-    // Añadir reacciones
-    for (const roleId of roleIds) {
+    // Añadir reacciones (limitado a 20 por mensaje)
+    const rolesToAdd = roleIds.slice(0, 20);
+    for (const roleId of rolesToAdd) {
       const role = interaction.guild.roles.cache.get(roleId);
       if (role) {
-        // Usar el primer emoji del nombre del rol o uno por defecto
         const emojiMatch = role.name.match(/\p{Emoji}/u);
         const emoji = emojiMatch ? emojiMatch[0] : '✅';
-        await message.react(emoji);
+        await message.react(emoji).catch(console.error);
       }
     }
 
     // Guardar mensaje en el estado
     if (!autorolesData.messages) autorolesData.messages = {};
-    autorolesData.messages[message.id] = { type, roleIds };
+    autorolesData.messages[message.id] = { type, roleIds: rolesToAdd };
     saveState();
 
     await interaction.update({
@@ -160,52 +160,86 @@ module.exports.run = (client) => {
     });
   });
 
-  // Manejar reacciones
+  // Manejar reacciones - Asignar roles
   setEvent(client, {
     name: 'messageReactionAdd',
     async run(reaction, user) {
       if (user.bot) return;
       if (!autorolesData.messages?.[reaction.message.id]) return;
 
-      const { type, roleIds } = autorolesData.messages[reaction.message.id];
+      // Si la reacción fue en un DM o el mensaje no está en cache
+      if (reaction.message.partial) {
+        try {
+          await reaction.message.fetch();
+        } catch (error) {
+          console.error('Error al obtener el mensaje:', error);
+          return;
+        }
+      }
+
+      const { roleIds } = autorolesData.messages[reaction.message.id];
       const emoji = reaction.emoji.toString();
       const guild = reaction.message.guild;
 
-      // Encontrar el rol correspondiente a la reacción
-      const roleId = roleIds.find(id => {
-        const role = guild.roles.cache.get(id);
-        const roleEmojiMatch = role?.name.match(/\p{Emoji}/u);
+      // Encontrar el rol correspondiente
+      for (const roleId of roleIds) {
+        const role = guild.roles.cache.get(roleId);
+        if (!role) continue;
+        
+        const roleEmojiMatch = role.name.match(/\p{Emoji}/u);
         const roleEmoji = roleEmojiMatch ? roleEmojiMatch[0] : '✅';
-        return roleEmoji === emoji;
-      });
-
-      if (roleId) {
-        const member = await guild.members.fetch(user.id);
-        await member.roles.add(roleId).catch(console.error);
+        
+        if (roleEmoji === emoji) {
+          try {
+            const member = await guild.members.fetch(user.id);
+            await member.roles.add(role);
+            break;
+          } catch (error) {
+            console.error(`Error al asignar rol ${role.name}:`, error);
+          }
+        }
       }
     }
   });
 
+  // Manejar reacciones - Remover roles
   setEvent(client, {
     name: 'messageReactionRemove',
     async run(reaction, user) {
       if (user.bot) return;
       if (!autorolesData.messages?.[reaction.message.id]) return;
 
+      // Si la reacción fue en un DM o el mensaje no está en cache
+      if (reaction.message.partial) {
+        try {
+          await reaction.message.fetch();
+        } catch (error) {
+          console.error('Error al obtener el mensaje:', error);
+          return;
+        }
+      }
+
       const { roleIds } = autorolesData.messages[reaction.message.id];
       const emoji = reaction.emoji.toString();
       const guild = reaction.message.guild;
 
-      const roleId = roleIds.find(id => {
-        const role = guild.roles.cache.get(id);
-        const roleEmojiMatch = role?.name.match(/\p{Emoji}/u);
+      // Encontrar el rol correspondiente
+      for (const roleId of roleIds) {
+        const role = guild.roles.cache.get(roleId);
+        if (!role) continue;
+        
+        const roleEmojiMatch = role.name.match(/\p{Emoji}/u);
         const roleEmoji = roleEmojiMatch ? roleEmojiMatch[0] : '✅';
-        return roleEmoji === emoji;
-      });
-
-      if (roleId) {
-        const member = await guild.members.fetch(user.id);
-        await member.roles.remove(roleId).catch(console.error);
+        
+        if (roleEmoji === emoji) {
+          try {
+            const member = await guild.members.fetch(user.id);
+            await member.roles.remove(role);
+            break;
+          } catch (error) {
+            console.error(`Error al remover rol ${role.name}:`, error);
+          }
+        }
       }
     }
   });
