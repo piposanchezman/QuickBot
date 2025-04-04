@@ -134,14 +134,25 @@ async function generateStoryStart() {
       messages: [
         {
           role: "system",
-          content: "Genera un inicio breve (1 frase) para historia colaborativa. Debe ser abierto."
+          content: `Eres un narrador de historias. Especializado en inicios breves (1 frase) con tono ${config.baseTone}. 
+          Usa estructuras como: 
+          - "Érase una vez [lugar/misterio]..."
+          - "La leyenda cuenta que [hecho inexplicable]..."
+          - "Todo comenzó cuando [suceso inesperado]..."
+          Solo escribe la frase, sin explicaciones ni resúmenes.`
         },
         {
           role: "user",
-          content: "Por favor, genera un inicio interesante para una historia."
+          content: `Escribe EXACTAMENTE UNA FRASE de inicio. 
+          Puedes seguir estos ejemplo: 
+          - "Érase una vez en un lugar misterioso..." 
+          - "En un mundo donde todo era posible..."
+          - "Nadie esperaba que aquel día..."`
         }
       ],
-      max_tokens: 40
+      temperature: 0.8,
+      max_tokens: config.max_tokens,
+      stop: [".", "\n"]
     });
     return completion.choices[0].message.content;
   } catch (error) {
@@ -160,14 +171,25 @@ async function generateStoryEnd() {
       messages: [
         {
           role: "system",
-          content: "Genera un final breve (1 frase) para esta historia."
+          content: `Eres un narrador de historias. Especializado en finales breves (1 o 2 frases) con tono ${config.baseTone}.   
+          Usa estructuras como:
+          - "Y así fue como [suceso inesperado]..."
+          - "Nadie supo nunca que [secreto revelado]..."
+          - "Al final, [reflexión o giro]..."
+          Solo escribe la frase, sin explicaciones ni resúmenes.`
         },
         {
           role: "user",
-          content: `Genera un final conciso para:\n\n${storySoFar}`
+          content: `Escribe EXACTAMENTE UNA FRASE que cierre esta historia:\n\n${storySoFar}\n\n
+          Puedes seguir estos ejemplos: 
+          - "El espejo se rompió, pero su reflejo siguió sonriendo."
+          - "Y así fue como el héroe se convirtió en leyenda."
+          - "Nadie supo nunca que el verdadero tesoro era la amistad."`
         }
       ],
-      max_tokens: 50
+      temperature: 0.6,
+      max_tokens: config.max_tokens,
+      stop: [".", "\n"]
     });
     return completion.choices[0].message.content;
   } catch (error) {
@@ -184,18 +206,25 @@ async function generateContinuation(prompt) {
       messages: [
         {
           role: "system",
-          content: "Continúa esta historia colaborativa con 1-2 frases breves. Mantén el estilo."
+          content: `Eres un narrador de historias. Especializado en historias colaborativas (2 frases) con tono ${config.baseTone}. 
+          Usa giros como: 
+          - "Pero entonces...[descubrimiento]"
+          - "Sin saber que...[secreto]"
+          - "De pronto...[acción]"
+          Solo escribe la frase, sin explicaciones ni resúmenes.`
         },
-        ...state.messages.map(msg => ({
+        ...state.messages.slice(-4).map(msg => ({ // Últimos 4 mensajes para contexto
           role: msg.role,
           content: msg.content
         })),
         {
           role: "user",
-          content: prompt
+          content: `Continúa esta historia en DOS FRASES breves:\n\n${prompt}`
         }
       ],
-      max_tokens: config.max_tokens
+      temperature: 0.6, 
+      max_tokens: config.max_tokens, 
+      stop: [".", "\n"] 
     });
     return completion.choices[0].message.content;
   } catch (error) {
