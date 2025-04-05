@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { set: setCommand } = require("../../handlers/commands");
 const { set: setEvent } = require("../../handlers/events");
 const { readFileSync, writeFileSync, existsSync } = require('fs');
@@ -17,7 +17,9 @@ const defaultConfig = {
     country_title: "🌍 Selecciona tu país",
     country_description: "Elige tu país o región",
     game_mode_title: "🎮 Modalidad de juego favorita",
-    game_mode_description: "Selecciona cómo te gusta jugar en nuestro servidor"
+    game_mode_description: "Selecciona cómo te gusta jugar en nuestro servidor",
+    remove_title: "🗑️ Eliminar reacción/rol",
+    remove_description: "Selecciona una reacción para eliminar"
   }
 };
 
@@ -42,14 +44,27 @@ function saveState() {
 module.exports.run = (client) => {
   if (!config.enabled) return;
 
+  // Comando principal
   setCommand(client, {
-    name: "setupautoroles",
-    description: "Configura los mensajes de auto-roles",
-    usage: "setupautoroles",
+    name: "autoroles",
+    description: "Administra el sistema de auto-roles",
+    usage: "autoroles <setup|remove>",
     permissions: ["ManageRoles"],
     category: "admin",
     enabled: true,
     slash: true,
+    options: [
+      {
+        name: "action",
+        description: "Acción a realizar",
+        type: 3,
+        required: true,
+        choices: [
+          { name: "Configurar auto-roles", value: "setup" },
+          { name: "Eliminar reacción/rol", value: "remove" }
+        ]
+      }
+    ],
     async slashRun(interaction) {
       if (!interaction.member.permissions.has("ManageRoles")) {
         return interaction.reply({
@@ -58,106 +73,202 @@ module.exports.run = (client) => {
         });
       }
 
-      const options = [
-        { label: "Género", value: "gender" },
-        { label: "Edad", value: "age" },
-        { label: "País", value: "country" },
-        { label: "Modalidad de juego", value: "game_mode" }
-      ];
+      const action = interaction.options.getString("action");
 
-      const selectMenu = new ActionRowBuilder().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId('autoroles_type')
-          .setPlaceholder('Selecciona el tipo de auto-roles')
-          .addOptions(options)
-      );
-
-      await interaction.reply({
-        content: "🔧 Configuración de Auto-Roles",
-        components: [selectMenu],
-        ephemeral: true
-      });
+      if (action === "setup") {
+        await setupAutoroles(interaction);
+      } else if (action === "remove") {
+        await removeAutorole(interaction);
+      }
     }
   });
 
-  // Manejar selección de tipo de auto-roles
+  // Función para configurar auto-roles
+  async function setupAutoroles(interaction) {
+    const options = [
+      { label: "Género", value: "gender" },
+      { label: "Edad", value: "age" },
+      { label: "País", value: "country" },
+      { label: "Modalidad de juego", value: "game_mode" }
+    ];
+
+    const selectMenu = new ActionRowBuilder().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('autoroles_type')
+        .setPlaceholder('Selecciona el tipo de auto-roles')
+        .addOptions(options)
+    );
+
+    await interaction.reply({
+      content: "🔧 Configuración de Auto-Roles",
+      components: [selectMenu],
+      ephemeral: true
+    });
+  }
+
+  // Función para eliminar reacción/rol
+  async function removeAutorole(interaction) {
+    if (!autorolesData.messages || Object.keys(autorolesData.messages).length === 0) {
+      return interaction.reply({
+        content: "❌ No hay mensajes de auto-roles configurados",
+        ephemeral: true
+      });
+    }
+
+    // Crear lista de mensajes configurados
+    const messages = [];
+    for (const [messageId, data] of Object.entries(autorolesData.messages)) {
+      try {
+        const message = await interaction.channel.messages.fetch(messageId);
+        messages.push({
+          label: `${data.type} (${messageId})`,
+          description: `Roles: ${data.roleIds.length}`,
+          value: messageId
+        });
+      } catch (error) {
+        console.error(`Error al obtener mensaje ${messageId}:`, error);
+        delete autorolesData.messages[messageId];
+      }
+    }
+
+    if (messages.length === 0) {
+      return interaction.reply({
+        content: "❌ No se encontraron mensajes de auto-roles válidos",
+        ephemeral: true
+      });
+    }
+
+    const selectMenu = new ActionRowBuilder().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('remove_autorole_select')
+        .setPlaceholder('Selecciona un mensaje de auto-roles')
+        .addOptions(messages.slice(0, 25))
+    );
+
+    await interaction.reply({
+      content: "🗑️ Selecciona el mensaje para eliminar una reacción",
+      components: [selectMenu],
+      ephemeral: true
+    });
+  }
+
+  // Manejar selección de mensaje para eliminar reacción
   client.on('interactionCreate', async interaction => {
-    if (!interaction.isStringSelectMenu() || interaction.customId !== 'autoroles_type') return;
+    if (!interaction.isStringSelectMenu() || interaction.customId !== 'remove_autorole_select') return;
 
-    const type = interaction.values[0];
-    const { guild } = interaction;
+    const messageId = interaction.values[0];
+    const messageData = autorolesData.messages[messageId];
 
-    // Obtener roles disponibles
-    const roles = guild.roles.cache
-      .filter(role => !role.managed && role.name !== '@everyone')
-      .map(role => ({ label: role.name, value: role.id }));
+    try {
+      const message = await interaction.channel.messages.fetch(messageId);
+      const reactions = message.reactions.cache;
 
-    if (roles.length === 0) {
-      return interaction.update({
-        content: "❌ No hay roles configurados en el servidor",
+      if (reactions.size === 0) {
+        return interaction.update({
+          content: "❌ Este mensaje no tiene reacciones",
+          components: [],
+          ephemeral: true
+        });
+      }
+
+      // Crear botones para cada reacción
+      const buttons = [];
+      reactions.forEach(reaction => {
+        buttons.push(
+          new ButtonBuilder()
+            .setCustomId(`remove_reaction_${messageId}_${reaction.emoji.identifier}`)
+            .setLabel(`Eliminar ${reaction.emoji.name}`)
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji(reaction.emoji)
+        );
+      });
+
+      // Dividir en filas de máximo 5 botones
+      const rows = [];
+      for (let i = 0; i < buttons.length; i += 5) {
+        rows.push(
+          new ActionRowBuilder().addComponents(buttons.slice(i, i + 5))
+        );
+      }
+
+      await interaction.update({
+        content: "Selecciona la reacción a eliminar:",
+        components: rows,
+        ephemeral: true
+      });
+
+    } catch (error) {
+      console.error('Error al obtener mensaje:', error);
+      await interaction.update({
+        content: "❌ Error al obtener el mensaje",
         components: [],
         ephemeral: true
       });
     }
-
-    const roleSelect = new ActionRowBuilder().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId(`autoroles_roles_${type}`)
-        .setPlaceholder('Selecciona los roles para este tipo')
-        .setMinValues(1)
-        .setMaxValues(Math.min(25, roles.length)) // Discord limita a 25 opciones
-        .addOptions(roles.slice(0, 25)) // Tomar solo los primeros 25 roles
-    );
-
-    await interaction.update({
-      content: `Selecciona los roles para ${type}`,
-      components: [roleSelect],
-      ephemeral: true
-    });
   });
 
-  // Manejar selección de roles
+  // Manejar eliminación de reacción
   client.on('interactionCreate', async interaction => {
-    if (!interaction.isStringSelectMenu() || !interaction.customId.startsWith('autoroles_roles_')) return;
+    if (!interaction.isButton() || !interaction.customId.startsWith('remove_reaction_')) return;
 
-    const type = interaction.customId.replace('autoroles_roles_', '');
-    const roleIds = interaction.values;
-    const { channel } = interaction;
+    const [_, messageId, emojiId] = interaction.customId.split('_');
+    const messageData = autorolesData.messages[messageId];
 
-    // Guardar configuración
-    if (!autorolesData[channel.id]) autorolesData[channel.id] = {};
-    autorolesData[channel.id][type] = roleIds;
-    saveState();
+    try {
+      const message = await interaction.channel.messages.fetch(messageId);
+      const reaction = message.reactions.cache.find(r => r.emoji.identifier === emojiId);
 
-    // Crear embed
-    const embed = new EmbedBuilder()
-      .setTitle(config.messages[`${type}_title`] || `Selecciona tu ${type}`)
-      .setDescription(config.messages[`${type}_description`] || "Reacciona para obtener tu rol");
-
-    // Enviar mensaje
-    const message = await channel.send({ embeds: [embed] });
-
-    // Añadir reacciones (limitado a 20 por mensaje)
-    const rolesToAdd = roleIds.slice(0, 20);
-    for (const roleId of rolesToAdd) {
-      const role = interaction.guild.roles.cache.get(roleId);
-      if (role) {
-        const emojiMatch = role.name.match(/\p{Emoji}/u);
-        const emoji = emojiMatch ? emojiMatch[0] : '✅';
-        await message.react(emoji).catch(console.error);
+      if (!reaction) {
+        return interaction.update({
+          content: "❌ La reacción no fue encontrada",
+          components: [],
+          ephemeral: true
+        });
       }
+
+      // Encontrar el rol asociado a esta reacción
+      const roleId = messageData.roleIds.find(id => {
+        const role = interaction.guild.roles.cache.get(id);
+        if (!role) return false;
+        const roleEmojiMatch = role.name.match(/\p{Emoji}/u);
+        const roleEmoji = roleEmojiMatch ? roleEmojiMatch[0] : '✅';
+        return roleEmoji === reaction.emoji.toString();
+      });
+
+      // Eliminar la reacción
+      await reaction.remove();
+
+      // Si encontramos un rol asociado
+      if (roleId) {
+        // Eliminar el rol de la configuración
+        messageData.roleIds = messageData.roleIds.filter(id => id !== roleId);
+
+        // Actualizar estado
+        if (messageData.roleIds.length === 0) {
+          delete autorolesData.messages[messageId];
+        } else {
+          autorolesData.messages[messageId] = messageData;
+        }
+        saveState();
+
+        // Opcional: eliminar el rol del servidor
+        // await interaction.guild.roles.delete(roleId).catch(console.error);
+      }
+
+      await interaction.update({
+        content: `✅ Reacción ${reaction.emoji} eliminada correctamente`,
+        components: [],
+        ephemeral: true
+      });
+
+    } catch (error) {
+      console.error('Error al eliminar reacción:', error);
+      await interaction.update({
+        content: "❌ Error al eliminar la reacción",
+        components: [],
+        ephemeral: true
+      });
     }
-
-    // Guardar mensaje en el estado
-    if (!autorolesData.messages) autorolesData.messages = {};
-    autorolesData.messages[message.id] = { type, roleIds: rolesToAdd };
-    saveState();
-
-    await interaction.update({
-      content: `✅ Mensaje de ${type} configurado correctamente`,
-      components: [],
-      ephemeral: true
-    });
   });
 
   // Manejar reacciones - Asignar roles

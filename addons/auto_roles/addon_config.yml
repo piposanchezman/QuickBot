@@ -8,3 +8,5 @@ messages:
   country_description: "Elige tu país o región"
   game_mode_title: "🎮 Modalidad de juego favorita"
   game_mode_description: "Selecciona cómo te gusta jugar en nuestro servidor"
+  remove_title: "🗑️ Eliminar reacción/rol"
+  remove_description: "Selecciona una reacción para eliminar"
