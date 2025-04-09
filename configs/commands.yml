@@ -50,7 +50,7 @@ remove:
   ephemeral: false
   enabled: true
 close:
-  roles: []
+  roles: ["771927644236546050", "1184568538715918436", "771928996694589481"]
   aliases: []
   cooldown: 0
   permissions: []
