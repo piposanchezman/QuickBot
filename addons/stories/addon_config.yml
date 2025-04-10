@@ -1,10 +1,14 @@
 # Configuración básica
 enabled: true
-story_channel: "1355900182323265596"  # ID del canal para historias
+story_channels: 
+  - "1355900182323265596"  # ID del canal 1
+  - "1359690702208106537"  # ID del canal 2
+  # Puedes agregar más canales aquí
 cooldown: 5000     # Tiempo de espera entre contribuciones (ms)
-max_tokens: 50    # Máximo de tokens para respuestas de IA
+max_tokens: 100    # Máximo de tokens para respuestas de IA
 min_chars: 10      # Mínimo de caracteres para contribuciones
 max_chars: 300     # Máximo de caracteres para contribuciones
+max_context_messages: 20 # Máximo de mensajes a mantener en contexto
 model: "deepseek/deepseek-chat-v3-0324:free"  # Modelo de IA a usar
 baseTone: "misterioso/fantástico/intrigante" # Tono base de la historia
 
@@ -17,10 +21,16 @@ embed_colors:
 
 # Mensajes personalizables
 messages:
+  # Comandos principales
   story_start: "**¡Comienza la historia colaborativa!**\n\n📜 **Normas:**\n1. Escribe un mensaje para continuar la historia\n2. Espera tu turno (la IA responderá después de cada contribución)\n3. Mantén el contenido apropiado\n\nLa historia comienza así:"
+  story_resumed: "**¡Historia reanudada!**\n\n📖 **Hasta ahora:**\n{story}\n\n✍️ **Continúa la historia...**"
   story_rules: "✍️ **Cómo participar:**\n- Escribe tu continuación en este canal\n- Solo se aceptará 1 mensaje por turno\n- La IA responderá después de cada contribución válida"
+  story_exported: "**¡Historia exportada!**"
   story_stopped: "**¡Historia finalizada!**\n\nAquí tienes el resultado final:"
+  story_completed: "¡Historia finalizada con éxito! Descarga el archivo adjunto para ver el resultado completo."
   story_status: "📊 **Estado de la historia actual**"
+  
+  # Estados y errores
   no_story: "No hay ninguna historia activa actualmente"
   story_active: "Ya hay una historia en progreso"
   processing: "🔄 Procesando tu contribución..."
@@ -29,9 +39,33 @@ messages:
   waiting_ia: "⏳ La IA está generando una respuesta. Espera antes de contribuir."
   ia_failed: "⚠️ **La IA no pudo contribuir a la historia**\n\n¡Los usuarios pueden continuar la historia normalmente!"
   ia_error: "⚠️ **Error al conectar con la IA**\n\nLa historia continuará sin contribución de la IA esta vez."
+  default_ending: "Y así terminó esta gran historia colaborativa."
+  
+  # Validaciones
   message_too_short: "❌ Tu mensaje es demasiado corto (mínimo {min} caracteres)"
   message_too_long: "❌ Tu mensaje es demasiado largo (máximo {max} caracteres)"
-  active_participants: "**Usuarios participantes:** {count}"
-  last_contributor: "**Último contribuidor:** {user}\n**Último mensaje:** {message}"
-  top_contributors: "**Top 5 contribuidores**"
-  no_data: "No hay datos aún"
+  
+  # Exportación
+  export_success: "Se ha generó un archivo con la historia actual."
+  
+  # Campos de estado
+  status_fields:
+    last_ai_response: "🔄 Última interacción de la IA"
+    last_contributor: "👤 Último contribuidor"
+    last_contribution: "💬 Última contribución"
+    top_contributors: "🏆 Top 5 contribuidores"
+    total_participants: "👥 Total participantes"
+  
+  # Campos de exportación
+  export_fields:
+    recent_snippet: "📝 Fragmento reciente"
+    participants: "👥 Participantes"
+    length: "📖 Longitud"
+  
+  # Inicios predeterminados
+  default_starters:
+    - "Érase una vez en un lugar misterioso..."
+    - "En un mundo donde todo era posible..."
+    - "Todo comenzó cuando..."
+    - "Nadie esperaba que aquel día..."
+    - "La leyenda cuenta que..."

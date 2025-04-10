@@ -1,23 +1,26 @@
 const { set: setCommand } = require("../../handlers/commands");
 const { EmbedBuilder, AttachmentBuilder } = require("discord.js");
-const { readFileSync, writeFileSync, watch, existsSync } = require("fs");
+const { readFileSync, writeFileSync, watch, existsSync, mkdirSync } = require("fs");
 const { parse } = require("yaml");
 const { join } = require("path");
 const OpenAI = require('openai');
+require('dotenv').config();
 
 // Configuración de rutas
 const configPath = join(__dirname, 'addon_config.yml');
-const storyPath = join(__dirname, 'current_story.json');
+const storiesDir = join(__dirname, 'stories_data');
 
 // Configuración por defecto
 const defaultConfig = {
   enabled: true,
-  story_channel: "",
+  story_channels: [],
   cooldown: 5000,
   max_tokens: 100,
   min_chars: 10,
   max_chars: 300,
   model: "deepseek/deepseek-chat-v3-0324:free",
+  baseTone: "misterioso/fantástico/intrigante",
+  max_context_messages: 20,
   embed_colors: {
     info: "#3498db",
     success: "#00FF00",
@@ -40,62 +43,39 @@ const defaultConfig = {
     ia_error: "⚠️ **Error de conexión con IA**\nContinúa sin IA",
     message_too_short: "❌ Muy corto (mín {min} chars)",
     message_too_long: "❌ Muy largo (máx {max} chars)",
+    export_success: "📜 **Historia exportada**\nSe ha generado un archivo con la historia actual.",
     default_starters: [
       "Érase una vez en un lugar misterioso...",
       "En un mundo donde todo era posible...",
       "Todo comenzó cuando...",
       "Nadie esperaba que aquel día...",
       "La leyenda cuenta que..."
-    ]
-  }
-};
-
-// Estado del sistema
-let state = {
-  active: false,
-  processing: false,
-  messages: [],
-  participants: new Map(),
-  lastContributor: null,
-  lastUserMessage: null,
-  cooldowns: new Map()
-};
-
-// Cargar configuración
-let config = { ...defaultConfig, ...parse(readFileSync(configPath, 'utf8')) };
-
-// Cargar historia existente al iniciar
-function loadStoryState() {
-  if (existsSync(storyPath)) {
-    try {
-      const savedData = JSON.parse(readFileSync(storyPath, 'utf8'));
-      
-      // Validar datos cargados
-      if (savedData && savedData.messages && savedData.messages.length > 0) {
-        state = {
-          active: true,
-          processing: false,
-          messages: savedData.messages,
-          participants: new Map(Object.entries(savedData.participants || {})),
-          lastContributor: savedData.lastContributor || null,
-          lastUserMessage: savedData.lastUserMessage || null,
-          cooldowns: new Map()
-        };
-        console.log('[Story] Historia cargada correctamente');
-      }
-    } catch (e) {
-      console.error('[Story] Error al cargar historia:', e);
+    ],
+    status_fields: {
+      last_ai_response: "🔄 Última interacción de la IA",
+      last_contributor: "👤 Último contribuidor",
+      last_contribution: "💬 Última contribución",
+      top_contributors: "🏆 Top 5 contribuidores",
+      total_participants: "👥 Total participantes"
+    },
+    export_fields: {
+      recent_snippet: "📝 Fragmento reciente",
+      participants: "👥 Participantes",
+      length: "📖 Longitud"
     }
   }
-}
+};
 
-// Cargar estado al iniciar
-loadStoryState();
+// Estados de los canales
+const channelStates = new Map();
+
+// Cargar configuración
+let config = loadConfig();
 
 // Cliente OpenAI
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
-  apiKey: "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",
+  apiKey: process.env.OPENROUTER_API_KEY,
   defaultHeaders: {
     "HTTP-Referer": "http://tienda.quickland.net/",
     "X-Title": "QuickLand Network",
@@ -103,137 +83,186 @@ const openai = new OpenAI({
 });
 
 // Funciones de utilidad
-function saveStory() {
+function loadConfig() {
+  try {
+    const fileConfig = existsSync(configPath) ? parse(readFileSync(configPath, 'utf8')) : {};
+    return { ...defaultConfig, ...fileConfig };
+  } catch (e) {
+    console.error('[STORIES] Error al cargar configuración:', e);
+    return defaultConfig;
+  }
+}
+
+function getStoryPath(channelId) {
+  return join(storiesDir, `story_${channelId}.json`);
+}
+
+function loadStoryStates() {
+  try {
+    if (!existsSync(storiesDir)) {
+      mkdirSync(storiesDir, { recursive: true });
+      return;
+    }
+
+    // Cargar historias para cada canal configurado
+    config.story_channels.forEach(channelId => {
+      const storyPath = getStoryPath(channelId);
+      
+      if (existsSync(storyPath)) {
+        try {
+          const savedData = JSON.parse(readFileSync(storyPath, 'utf8'));
+          
+          if (savedData?.messages?.length > 0) {
+            channelStates.set(channelId, {
+              active: true,
+              processing: false,
+              messages: savedData.messages,
+              participants: new Map(Object.entries(savedData.participants || {})),
+              lastContributor: savedData.lastContributor || null,
+              lastUserMessage: savedData.lastUserMessage || null,
+              cooldowns: new Map()
+            });
+            console.log(`[STORIES] Historia cargada para canal ${channelId}`);
+          }
+        } catch (e) {
+          console.error(`[STORIES] Error al cargar historia para canal ${channelId}:`, e);
+        }
+      }
+    });
+  } catch (e) {
+    console.error('[STORIES] Error al cargar historias:', e);
+  }
+}
+
+function saveStory(channelId) {
+  const channelState = channelStates.get(channelId);
+  if (!channelState) return;
+
+  const recentMessages = channelState.messages.slice(-config.max_context_messages);
+  
   const dataToSave = {
-    messages: state.messages,
-    participants: Object.fromEntries(state.participants),
-    lastContributor: state.lastContributor,
-    lastUserMessage: state.lastUserMessage
+    messages: recentMessages,
+    participants: Object.fromEntries(channelState.participants),
+    lastContributor: channelState.lastContributor,
+    lastUserMessage: channelState.lastUserMessage
   };
   
-  writeFileSync(storyPath, JSON.stringify(dataToSave, null, 2));
+  writeFileSync(getStoryPath(channelId), JSON.stringify(dataToSave, null, 2));
 }
 
 function createEmbed(description, color = config.embed_colors.info) {
-  return new EmbedBuilder().setDescription(description).setColor(color);
+  return new EmbedBuilder()
+    .setDescription(description)
+    .setColor(color);
 }
 
 function getMessage(key, vars = {}) {
   let msg = config.messages[key] || defaultConfig.messages[key] || key;
-  Object.entries(vars).forEach(([k, v]) => {
-    msg = msg.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
-  });
-  return msg;
+  return Object.entries(vars).reduce((acc, [k, v]) => 
+    acc.replace(new RegExp(`\\{${k}\\}`, 'g'), v), msg);
 }
 
-// Función para generar inicio con IA
-async function generateStoryStart() {
+async function generateAIResponse(messages, systemPrompt, temperature = 0.7) {
   try {
     const completion = await openai.chat.completions.create({
       model: config.model,
       messages: [
-        {
-          role: "system",
-          content: `Eres un narrador de historias. Especializado en inicios breves (1 frase) con tono ${config.baseTone}. 
-          Usa estructuras como: 
-          - "Érase una vez [lugar/misterio]..."
-          - "La leyenda cuenta que [hecho inexplicable]..."
-          - "Todo comenzó cuando [suceso inesperado]..."
-          Solo escribe la frase, sin explicaciones ni resúmenes.`
-        },
-        {
-          role: "user",
-          content: `Escribe EXACTAMENTE UNA FRASE de inicio. 
-          Puedes seguir estos ejemplo: 
-          - "Érase una vez en un lugar misterioso..." 
-          - "En un mundo donde todo era posible..."
-          - "Nadie esperaba que aquel día..."`
-        }
+        { role: "system", content: systemPrompt },
+        ...messages
       ],
-      temperature: 0.8,
+      temperature,
       max_tokens: config.max_tokens,
-      stop: [".", "\n"]
+      stop: ["\n"]
     });
-    return completion.choices[0].message.content;
-  } catch (error) {
-    console.error("Error al generar inicio:", error);
-    return null;
-  }
-}
-
-// Función para generar final con IA
-async function generateStoryEnd() {
-  try {
-    const storySoFar = state.messages.map(m => m.content).join("\n");
     
-    const completion = await openai.chat.completions.create({
-      model: config.model,
-      messages: [
-        {
-          role: "system",
-          content: `Eres un narrador de historias. Especializado en finales breves (1 o 2 frases) con tono ${config.baseTone}.   
-          Usa estructuras como:
-          - "Y así fue como [suceso inesperado]..."
-          - "Nadie supo nunca que [secreto revelado]..."
-          - "Al final, [reflexión o giro]..."
-          Solo escribe la frase, sin explicaciones ni resúmenes.`
-        },
-        {
-          role: "user",
-          content: `Escribe EXACTAMENTE UNA FRASE que cierre esta historia:\n\n${storySoFar}\n\n
-          Puedes seguir estos ejemplos: 
-          - "El espejo se rompió, pero su reflejo siguió sonriendo."
-          - "Y así fue como el héroe se convirtió en leyenda."
-          - "Nadie supo nunca que el verdadero tesoro era la amistad."`
-        }
-      ],
-      temperature: 0.6,
-      max_tokens: config.max_tokens,
-      stop: [".", "\n"]
-    });
-    return completion.choices[0].message.content;
+    let response = completion.choices[0].message.content.trim();
+    if (!/[.!?]$/.test(response)) response += '.';
+    return response;
   } catch (error) {
-    console.error("Error al generar final:", error);
+    console.error("Error en generación de IA:", error);
     return null;
   }
 }
 
-// Función para generar continuación con IA
-async function generateContinuation(prompt) {
-  try {
-    const completion = await openai.chat.completions.create({
-      model: config.model,
-      messages: [
-        {
-          role: "system",
-          content: `Eres un narrador de historias. Especializado en historias colaborativas (2 frases) con tono ${config.baseTone}. 
-          Usa giros como: 
-          - "Pero entonces...[descubrimiento]"
-          - "Sin saber que...[secreto]"
-          - "De pronto...[acción]"
-          Solo escribe la frase, sin explicaciones ni resúmenes.`
-        },
-        ...state.messages.slice(-4).map(msg => ({ // Últimos 4 mensajes para contexto
-          role: msg.role,
-          content: msg.content
-        })),
-        {
-          role: "user",
-          content: `Continúa esta historia en DOS FRASES breves:\n\n${prompt}`
-        }
-      ],
-      temperature: 0.6, 
-      max_tokens: config.max_tokens, 
-      stop: [".", "\n"] 
-    });
-    return completion.choices[0].message.content;
-  } catch (error) {
-    console.error("Error al generar continuación:", error);
-    return null;
-  }
+async function generateStoryStart() {
+  const systemPrompt = `Eres un narrador de historias. Especializado en inicios breves (1 FRASE) con tono ${config.baseTone}. 
+  Usa estructuras como: 
+  - "Érase una vez [lugar/misterio]..."
+  - "La leyenda cuenta que [hecho inexplicable]..."
+  - "Todo comenzó cuando [suceso inesperado]..."
+  Solo escribe la ÚNICA FRASE, sin explicaciones ni resúmenes.`;
+
+  const userPrompt = `Escribe EXACTAMENTE UNA FRASE de inicio. 
+  Puedes seguir estos ejemplo: 
+  - "Érase una vez en un lugar misterioso..." 
+  - "En un mundo donde todo era posible..."
+  - "Nadie esperaba que aquel día..."`;
+
+  return generateAIResponse(
+    [{ role: "user", content: userPrompt }],
+    systemPrompt,
+    0.8
+  );
 }
 
-// Validar longitud del mensaje
+async function generateStoryEnd(channelId) {
+  const channelState = channelStates.get(channelId);
+  if (!channelState) return null;
+
+  const storySoFar = channelState.messages.map(m => m.content).join("\n");
+  
+  const systemPrompt = `Eres un narrador de historias. Especializado en finales breves (2 FRASES) con tono ${config.baseTone}.   
+  Usa estructuras como:
+  - "Y así fue como [suceso inesperado]..."
+  - "Nadie supo nunca que [secreto revelado]..."
+  - "Al final, [reflexión o giro]..."
+  Solo escribe laS 2 FRASES, sin explicaciones ni resúmenes.`;
+
+  const userPrompt = `Escribe EXACTAMENTE DOS FRASES que cierre esta historia:\n\n${storySoFar}\n\n
+  Puedes seguir estos ejemplos: 
+  - "El espejo se rompió, pero su reflejo siguió sonriendo."
+  - "Y así fue como el héroe se convirtió en leyenda."
+  - "Nadie supo nunca que el verdadero tesoro era la amistad."`;
+
+  return generateAIResponse(
+    [{ role: "user", content: userPrompt }],
+    systemPrompt,
+    0.8
+  );
+}
+
+async function generateContinuation(prompt, username, channelId) {
+  const channelState = channelStates.get(channelId);
+  if (!channelState) return null;
+
+  const contextMessages = channelState.messages.slice(-10).map(msg => ({
+    role: msg.role,
+    content: msg.content,
+    name: msg.role === 'user' ? (msg.username || 'Usuario') : 'Narrador'
+  }));
+
+  const systemPrompt = `Eres un narrador de historias colaborativas. Analiza el contexto y continúa la historia de manera coherente en 2 FRASES con tono ${config.baseTone}. 
+  Contexto actual:
+  ${contextMessages.map(m => `${m.name}: ${m.content}`).join('\n')}
+  
+  Directrices:
+  1. Mantén coherencia con los eventos anteriores
+  2. Usa transiciones naturales ("Pero entonces...", "De pronto...")
+  3. Limita tu respuesta a 2 FRASES concisas
+  4. Introduce desarrollo o conflicto cuando sea apropiado`;
+
+  const userPrompt = `Continúa esta historia de manera natural basándote en la contribución de ${username}: ${prompt}`;
+
+  return generateAIResponse(
+    [
+      ...contextMessages.map(msg => ({ role: msg.role, content: msg.content })),
+      { role: "user", content: userPrompt }
+    ],
+    systemPrompt,
+    0.8
+  );
+}
+
 function validateMessageLength(content) {
   if (content.length < config.min_chars) {
     return { valid: false, error: getMessage("message_too_short", { min: config.min_chars }) };
@@ -244,266 +273,351 @@ function validateMessageLength(content) {
   return { valid: true };
 }
 
-// Handlers principales
+async function sendTemporaryMessage(channel, content, color, timeout = 3000) {
+  try {
+    const reply = await channel.send({ 
+      embeds: [createEmbed(content, color)] 
+    });
+    setTimeout(() => reply.delete().catch(() => {}), timeout);
+  } catch (error) {
+    console.error('Error al enviar mensaje temporal:', error);
+  }
+}
+
+async function exportStory(interaction, channelId, includeMetadata = true) {
+  const channelState = channelStates.get(channelId);
+  
+  if (!channelState?.active || channelState.messages.length === 0) {
+    return interaction.reply({
+      embeds: [createEmbed(getMessage("no_story"), config.embed_colors.warning)],
+      ephemeral: true
+    });
+  }
+
+  await interaction.deferReply();
+
+  try {
+    const storyText = channelState.messages.map(msg => 
+      `[${msg.role === 'assistant' ? 'Narrador' : msg.username || 'Usuario'}]: ${msg.content}`
+    ).join('\n\n');
+
+    let fullText = storyText;
+    if (includeMetadata) {
+      const participantsList = Array.from(channelState.participants.entries())
+        .map(([id, count]) => `- <@${id}>: ${count} contribuciones`)
+        .join('\n');
+      
+      fullText += `\n\n=== METADATOS ===\n` +
+        `Participantes: ${channelState.participants.size}\n` +
+        `Contribuciones totales: ${channelState.messages.filter(m => m.role === 'user').length}\n` +
+        `Participantes:\n${participantsList}\n` +
+        `Último contribuidor: <@${channelState.lastContributor}>`;
+    }
+
+    const storyBuffer = Buffer.from(fullText, 'utf-8');
+    const fileName = `historia-${channelId}-${Date.now()}.txt`;
+    const attachment = new AttachmentBuilder(storyBuffer, { name: fileName });
+
+    const recentContent = channelState.messages.slice(-1)[0].content;
+    const snippet = recentContent.length > 150 
+      ? recentContent.substring(0, 150) + "..."
+      : recentContent;
+
+    const embed = new EmbedBuilder()
+      .setColor(config.embed_colors.success)
+      .setTitle(getMessage("story_exported"))
+      .setDescription(getMessage("export_success"))
+      .addFields(
+        {
+          name: config.messages.export_fields.recent_snippet,
+          value: snippet
+        },
+        {
+          name: config.messages.export_fields.participants,
+          value: channelState.participants.size.toString(),
+          inline: true
+        },
+        {
+          name: config.messages.export_fields.length,
+          value: `${channelState.messages.length} mensajes`,
+          inline: true
+        }
+      );
+
+    await interaction.editReply({
+      embeds: [embed],
+      files: [attachment]
+    });
+
+  } catch (error) {
+    console.error('Error en exportStory:', error);
+    await interaction.editReply({
+      embeds: [createEmbed(getMessage("error_processing"), config.embed_colors.error)]
+    });
+  }
+}
+
 async function startStory(interaction) {
-  if (state.active) {
+  const channelId = interaction.channel.id;
+  
+  // Verificar si el canal está en la lista de canales permitidos
+  if (!config.story_channels.includes(channelId)) {
+    return interaction.reply({
+      embeds: [createEmbed("Este canal no está configurado para historias colaborativas.", config.embed_colors.error)],
+      ephemeral: true
+    });
+  }
+
+  // Verificar si ya hay una historia activa en este canal
+  if (channelStates.has(channelId) && channelStates.get(channelId).active) {
     return interaction.reply({
       embeds: [createEmbed(getMessage("story_active"), config.embed_colors.warning)],
       ephemeral: true
     });
   }
 
-  let storyStart = await generateStoryStart();
-  if (!storyStart) {
-    const starters = config.messages.default_starters || defaultConfig.messages.default_starters;
-    storyStart = starters[Math.floor(Math.random() * starters.length)];
-  }
-
-  state = {
-    active: true,
-    processing: false,
-    messages: [{ role: "assistant", content: storyStart }],
-    participants: new Map(),
-    lastContributor: null,
-    lastUserMessage: null,
-    cooldowns: new Map()
-  };
-
-  const embed = new EmbedBuilder()
-    .setColor(config.embed_colors.info)
-    .setDescription(getMessage("story_start"))
-    .addFields(
-      { name: "📖 Historia", value: storyStart },
-      { name: "\u200B", value: getMessage("story_rules") }
-    );
-
-  await interaction.reply({ embeds: [embed] });
-  saveStory();
-}
-
-async function resumeStory(interaction) {
-  if (!state.active || state.messages.length === 0) {
-    return interaction.reply({
-      embeds: [createEmbed(getMessage("no_story"), config.embed_colors.warning)],
-      ephemeral: true
-    });
-  }
-
-  const lastMessages = state.messages.slice(-3).map(m => m.content).join("\n\n");
-  
-  const embed = new EmbedBuilder()
-    .setColor(config.embed_colors.info)
-    .setDescription(getMessage("story_resumed", { story: lastMessages }))
-    .addFields(
-      { name: "\u200B", value: getMessage("story_rules") }
-    );
-
-  await interaction.reply({ embeds: [embed] });
-}
-
-async function stopStory(interaction) {
-  if (!state.active) {
-    return interaction.reply({
-      embeds: [createEmbed(getMessage("no_story"), config.embed_colors.warning)],
-      ephemeral: true
-    }).catch(error => {
-      console.error('Error al responder a interacción:', error);
-    });
-  }
-
-  // Deferir la respuesta primero para evitar timeout
+  // Deferir la respuesta primero para evitar el timeout
   await interaction.deferReply();
 
   try {
-    let storyEnd = await generateStoryEnd();
-    if (!storyEnd) storyEnd = "Y así terminó esta gran historia colaborativa.";
+    let storyStart = await generateStoryStart();
+    if (!storyStart) {
+      const starters = config.messages.default_starters;
+      storyStart = starters[Math.floor(Math.random() * starters.length)];
+    }
 
-    // Añadir el final a la historia
-    state.messages.push({ role: "assistant", content: storyEnd });
+    channelStates.set(channelId, {
+      active: true,
+      processing: false,
+      messages: [{ role: "assistant", content: storyStart }],
+      participants: new Map(),
+      lastContributor: null,
+      lastUserMessage: null,
+      cooldowns: new Map()
+    });
 
-    // Formatear la historia completa en memoria
-    const storyText = state.messages.map(msg => {
-      return `${msg.role === 'assistant' ? '[Narrador]' : '[Usuario]'}: ${msg.content}`;
-    }).join('\n\n');
+    const embed = new EmbedBuilder()
+      .setColor(config.embed_colors.info)
+      .setDescription(getMessage("story_start"))
+      .addFields(
+        { name: "📖 Historia", value: storyStart },
+        { name: "\u200B", value: getMessage("story_rules") }
+      );
 
-    // Crear buffer en memoria
+    await interaction.editReply({ embeds: [embed] });
+    saveStory(channelId);
+  } catch (error) {
+    console.error('Error en startStory:', error);
+    await interaction.editReply({
+      embeds: [createEmbed(getMessage("error_processing"), config.embed_colors.error)]
+    });
+  }
+}
+
+async function resumeStory(interaction) {
+  const channelId = interaction.channel.id;
+  const channelState = channelStates.get(channelId);
+  
+  if (!channelState?.active || channelState.messages.length === 0) {
+    return interaction.reply({
+      embeds: [createEmbed(getMessage("no_story"), config.embed_colors.warning)],
+      ephemeral: true
+    });
+  }
+
+  try {
+    const lastMessages = channelState.messages.slice(-3).map(m => m.content).join("\n\n");
+    
+    const embed = new EmbedBuilder()
+      .setColor(config.embed_colors.info)
+      .setDescription(getMessage("story_resumed", { story: lastMessages }))
+      .addFields(
+        { name: "\u200B", value: getMessage("story_rules") }
+      );
+
+    await interaction.reply({ embeds: [embed] });
+  } catch (error) {
+    console.error('Error en resumeStory:', error);
+    await interaction.reply({
+      embeds: [createEmbed(getMessage("error_processing"), config.embed_colors.error)],
+      ephemeral: true
+    });
+  }
+}
+
+async function stopStory(interaction) {
+  const channelId = interaction.channel.id;
+  const channelState = channelStates.get(channelId);
+  
+  if (!channelState?.active) {
+    return interaction.reply({
+      embeds: [createEmbed(getMessage("no_story"), config.embed_colors.warning)],
+      ephemeral: true
+    });
+  }
+
+  try {
+    // Deferir la respuesta primero
+    await interaction.deferReply();
+
+    let storyEnd = await generateStoryEnd(channelId);
+    if (!storyEnd) storyEnd = getMessage("default_ending") || "Y así terminó esta gran historia colaborativa.";
+
+    channelState.messages.push({ role: "assistant", content: storyEnd });
+
+    const storyText = channelState.messages.map(msg => 
+      `[${msg.role === 'assistant' ? 'Narrador' : msg.username || 'Usuario'}]: ${msg.content}`
+    ).join('\n\n');
+
     const storyBuffer = Buffer.from(storyText, 'utf-8');
-    const fileName = `historia-colaborativa-${Date.now()}.txt`;
-
-    // Crear attachment desde el buffer
+    const fileName = `historia-final-${channelId}-${Date.now()}.txt`;
     const attachment = new AttachmentBuilder(storyBuffer, { name: fileName });
 
-    // Crear embed de confirmación
     const embed = new EmbedBuilder()
       .setColor(config.embed_colors.success)
       .setTitle(getMessage("story_stopped"))
-      .setDescription("¡Historia finalizada con éxito! Descarga el archivo adjunto para ver el resultado completo.")
+      .setDescription(getMessage("story_completed") || "¡Historia finalizada con éxito! Descarga el archivo adjunto para ver el resultado completo.")
       .addFields(
         {
-          name: "📝 Fragmento final",
+          name: config.messages.export_fields.recent_snippet,
           value: storyEnd.length > 150 
             ? storyEnd.substring(0, 150) + "..."
             : storyEnd
         },
         {
-          name: "👥 Participantes",
-          value: state.participants.size.toString(),
+          name: config.messages.export_fields.participants,
+          value: channelState.participants.size.toString(),
           inline: true
         },
         {
-          name: "📖 Longitud",
-          value: `${state.messages.length} mensajes`,
+          name: config.messages.export_fields.length,
+          value: `${channelState.messages.length} mensajes`,
           inline: true
         }
       );
 
-    // Enviar respuesta con archivo en memoria
     await interaction.editReply({
       embeds: [embed],
       files: [attachment]
     });
 
-    // Actualizar estado
-    state.active = false;
-    saveStory();
+    // Marcar como inactiva pero mantener los datos por si se reanuda
+    channelState.active = false;
+    saveStory(channelId);
 
   } catch (error) {
     console.error('Error en stopStory:', error);
-    
-    try {
-      await interaction.editReply({
-        embeds: [createEmbed("❌ Ocurrió un error al finalizar la historia", config.embed_colors.error)]
-      });
-    } catch (secondaryError) {
-      console.error('Error al notificar error:', secondaryError);
-    }
+    // Usar followUp si ya hemos deferido
+    await interaction.followUp({
+      embeds: [createEmbed(getMessage("error_processing"), config.embed_colors.error)],
+      ephemeral: true
+    });
   }
 }
 
 async function showStatus(interaction) {
-  if (!state.active) {
+  const channelId = interaction.channel.id;
+  const channelState = channelStates.get(channelId);
+  
+  if (!channelState?.active) {
     return interaction.reply({
       embeds: [createEmbed(getMessage("no_story"), config.embed_colors.warning)],
       ephemeral: true
     });
   }
 
-  // Obtener últimos mensajes
-  let lastAIResponse = "Ninguna aún";
-  let lastUserContribution = "Ninguna aún";
-  let lastUser = "Nadie aún";
+  try {
+    const lastAIResponse = channelState.messages.filter(m => m.role === "assistant").pop()?.content || "Ninguna aún";
+    const lastUserMsg = channelState.messages.filter(m => m.role === "user").pop();
+    const lastUserContribution = lastUserMsg?.content || "Ninguna aún";
+    const lastUser = lastUserMsg?.username ? lastUserMsg.username : (channelState.lastContributor ? `<@${channelState.lastContributor}>` : "Desconocido");
 
-  // Buscar la última respuesta de IA
-  for (let i = state.messages.length - 1; i >= 0; i--) {
-    if (state.messages[i].role === "assistant") {
-      lastAIResponse = state.messages[i].content;
-      break;
-    }
+    const topContributors = Array.from(channelState.participants.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([userId, count], index) => `${index + 1}. <@${userId}> - ${count} contribuciones`)
+      .join('\n') || "Nadie aún";
+
+    const embed = new EmbedBuilder()
+      .setColor(config.embed_colors.info)
+      .setTitle(getMessage("story_status"))
+      .addFields(
+        {
+          name: config.messages.status_fields.last_ai_response,
+          value: lastAIResponse.length > 150 
+            ? lastAIResponse.substring(0, 150) + "..." 
+            : lastAIResponse
+        },
+        {
+          name: config.messages.status_fields.last_contributor,
+          value: lastUser
+        },
+        {
+          name: config.messages.status_fields.last_contribution,
+          value: lastUserContribution.length > 150
+            ? lastUserContribution.substring(0, 150) + "..."
+            : lastUserContribution
+        },
+        {
+          name: config.messages.status_fields.top_contributors,
+          value: topContributors
+        },
+        {
+          name: config.messages.status_fields.total_participants,
+          value: channelState.participants.size.toString()
+        }
+      );
+
+    await interaction.reply({ embeds: [embed] });
+  } catch (error) {
+    console.error('Error en showStatus:', error);
+    await interaction.reply({
+      embeds: [createEmbed(getMessage("error_processing"), config.embed_colors.error)],
+      ephemeral: true
+    });
   }
-
-  // Buscar la última contribución de usuario
-  for (let i = state.messages.length - 1; i >= 0; i--) {
-    if (state.messages[i].role === "user") {
-      lastUserContribution = state.messages[i].content;
-      // Obtener el usuario que hizo esta contribución (aproximado)
-      lastUser = state.lastContributor ? `<@${state.lastContributor}>` : "Desconocido";
-      break;
-    }
-  }
-
-  // Obtener top contribuidores
-  const topContributors = Array.from(state.participants.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([userId, count], index) => `${index + 1}. <@${userId}> - ${count} contribuciones`)
-    .join('\n') || "Nadie aún";
-
-  // Crear embed con la información
-  const embed = new EmbedBuilder()
-    .setColor(config.embed_colors.info)
-    .setTitle(getMessage("story_status"))
-    .addFields(
-      {
-        name: "🔄 Última interacción de la IA",
-        value: lastAIResponse.length > 150 
-          ? lastAIResponse.substring(0, 150) + "..." 
-          : lastAIResponse || "Ninguna"
-      },
-      {
-        name: "👤 Último contribuidor",
-        value: lastUser
-      },
-      {
-        name: "💬 Última contribución",
-        value: lastUserContribution.length > 150
-          ? lastUserContribution.substring(0, 150) + "..."
-          : lastUserContribution || "Ninguna"
-      },
-      {
-        name: "🏆 Top 5 contribuidores",
-        value: topContributors
-      },
-      {
-        name: "👥 Total participantes",
-        value: state.participants.size.toString()
-      }
-    );
-
-  await interaction.reply({ embeds: [embed] });
 }
 
-// Evento para mensajes en el canal de historia
 async function handleStoryMessage(message) {
-  if (!state.active || message.author.bot || message.channel.id !== config.story_channel) return;
+  const channelId = message.channel.id;
+  
+  // Verificar si el canal está en la lista de canales permitidos
+  if (!config.story_channels.includes(channelId)) return;
+  
+  const channelState = channelStates.get(channelId);
+  if (!channelState?.active || message.author.bot) return;
 
   const validation = validateMessageLength(message.content);
   if (!validation.valid) {
-    try {
-      await message.delete();
-      const reply = await message.channel.send({ 
-        embeds: [createEmbed(validation.error, config.embed_colors.error)] 
-      });
-      setTimeout(() => reply.delete().catch(() => {}), 3000);
-    } catch (error) {
-      console.error('Error al manejar mensaje inválido:', error);
-    }
+    await message.delete().catch(() => {});
+    await sendTemporaryMessage(message.channel, validation.error, config.embed_colors.error);
     return;
   }
 
-  if (state.cooldowns.has(message.author.id)) {
-    try {
-      await message.delete();
-      const reply = await message.channel.send({ 
-        embeds: [createEmbed(getMessage("cooldown_active"), config.embed_colors.warning)] 
-      });
-      setTimeout(() => reply.delete().catch(() => {}), 3000);
-    } catch (error) {
-      console.error('Error al manejar cooldown:', error);
-    }
+  if (channelState.cooldowns.has(message.author.id)) {
+    await message.delete().catch(() => {});
+    await sendTemporaryMessage(message.channel, getMessage("cooldown_active"), config.embed_colors.warning);
     return;
   }
 
-  if (state.processing) {
-    try {
-      await message.delete();
-      const reply = await message.channel.send({ 
-        embeds: [createEmbed(getMessage("waiting_ia"), config.embed_colors.warning)] 
-      });
-      setTimeout(() => reply.delete().catch(() => {}), 3000);
-    } catch (error) {
-      console.error('Error al manejar procesamiento:', error);
-    }
+  if (channelState.processing) {
+    await message.delete().catch(() => {});
+    await sendTemporaryMessage(message.channel, getMessage("waiting_ia"), config.embed_colors.warning);
     return;
   }
 
-  state.processing = true;
-  state.lastContributor = message.author.id;
-  state.lastUserMessage = message.content;
+  channelState.processing = true;
+  channelState.lastContributor = message.author.id;
+  channelState.lastUserMessage = message.content;
   
-  const userContributions = state.participants.get(message.author.id) || 0;
-  state.participants.set(message.author.id, userContributions + 1);
+  const userContributions = channelState.participants.get(message.author.id) || 0;
+  channelState.participants.set(message.author.id, userContributions + 1);
 
-  state.messages.push({ role: "user", content: message.content });
+  channelState.messages.push({ 
+    role: "user", 
+    content: message.content,
+    username: message.author.username
+  });
   
   let processingMsg;
   try {
@@ -511,11 +625,18 @@ async function handleStoryMessage(message) {
       embeds: [createEmbed(getMessage("processing"), config.embed_colors.info)] 
     });
 
-    const aiResponse = await generateContinuation(message.content);
+    // Configurar timeout de 30 segundos
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Timeout después de 30 segundos")), 30000)
+    );
+
+    const aiResponse = await Promise.race([
+      generateContinuation(message.content, message.author.username, channelId),
+      timeoutPromise
+    ]);
     
     if (aiResponse) {
-      state.messages.push({ role: "assistant", content: aiResponse });
-      
+      channelState.messages.push({ role: "assistant", content: aiResponse });
       await message.channel.send({ 
         embeds: [createEmbed(aiResponse, config.embed_colors.info)] 
       });
@@ -526,37 +647,49 @@ async function handleStoryMessage(message) {
     }
   } catch (error) {
     console.error("Error en handleStoryMessage:", error);
-    await message.channel.send({ 
-      embeds: [createEmbed(getMessage("ia_error"), config.embed_colors.error)] 
-    });
+    
+    // Verificar si fue un timeout
+    if (error.message === "Timeout después de 30 segundos") {
+      await message.channel.send({ 
+        embeds: [createEmbed("⏳ **La IA tardó demasiado en responder**\n¡Continúa tú con la historia!", config.embed_colors.warning)] 
+      });
+    } else {
+      await message.channel.send({ 
+        embeds: [createEmbed(getMessage("ia_error"), config.embed_colors.error)] 
+      });
+    }
   } finally {
     if (processingMsg) await processingMsg.delete().catch(() => {});
-    state.processing = false;
-    state.cooldowns.set(message.author.id, true);
-    setTimeout(() => state.cooldowns.delete(message.author.id), config.cooldown);
-    saveStory();
+    channelState.processing = false;
+    channelState.cooldowns.set(message.author.id, true);
+    setTimeout(() => channelState.cooldowns.delete(message.author.id), config.cooldown);
+    saveStory(channelId);
   }
 }
 
-// Implementación de comandos
 module.exports.run = (client) => {
-  // Configurar watcher para cambios en la configuración
+  // Crear directorio de historias si no existe
+  if (!existsSync(storiesDir)) {
+    mkdirSync(storiesDir, { recursive: true });
+  }
+
+  loadStoryStates();
+
   watch(configPath, (eventType) => {
     if (eventType === 'change') {
       try {
-        config = { ...defaultConfig, ...parse(readFileSync(configPath, 'utf8')) };
-        console.log('[Story] Configuración recargada');
+        config = loadConfig();
+        console.log('[STORIES] Configuración recargada');
       } catch (e) {
-        console.error('[Story] Error al recargar configuración:', e);
+        console.error('[STORIES] Error al recargar configuración:', e);
       }
     }
   });
 
-  // Registrar comandos slash
   setCommand(client, {
     name: "story",
     description: "Historia colaborativa con IA",
-    usage: "story <start|stop|status|resume>",
+    usage: "story <start|stop|status|resume|export>",
     permissions: [],
     aliases: [],
     category: "addon",
@@ -582,40 +715,64 @@ module.exports.run = (client) => {
         name: "status",
         description: "Muestra estado actual",
         type: 1
+      },
+      {
+        name: "export",
+        description: "Exporta la historia actual",
+        type: 1
       }
     ],
     async slashRun(interaction) {
       try {
         const subcommand = interaction.options.getSubcommand();
+        const channelId = interaction.channel.id;
+        
+        // Verificar si el canal está en la lista de canales permitidos
+        if (!config.story_channels.includes(channelId)) {
+          return interaction.reply({
+            embeds: [createEmbed("Este canal no está configurado para historias colaborativas.", config.embed_colors.error)],
+            ephemeral: true
+          });
+        }
         
         switch (subcommand) {
-          case "start":
+          case "start": 
             await startStory(interaction);
             break;
-          case "resume":
+          case "resume": 
             await resumeStory(interaction);
             break;
-          case "stop":
+          case "stop": 
             await stopStory(interaction);
             break;
-          case "status":
+          case "status": 
             await showStatus(interaction);
+            break;
+          case "export": 
+            await exportStory(interaction, channelId);
             break;
         }
       } catch (error) {
         console.error('Error en slashRun:', error);
-        if (!interaction.replied && !interaction.deferred) {
-          await interaction.reply({
-            embeds: [createEmbed("❌ Ocurrió un error al procesar el comando", config.embed_colors.error)],
-            ephemeral: true
-          }).catch(e => console.error('Error al enviar mensaje de error:', e));
+        try {
+          if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({
+              embeds: [createEmbed(getMessage("error_processing"), config.embed_colors.error)],
+              ephemeral: true
+            });
+          } else {
+            await interaction.followUp({
+              embeds: [createEmbed(getMessage("error_processing"), config.embed_colors.error)],
+              ephemeral: true
+            });
+          }
+        } catch (followUpError) {
+          console.error('Error al enviar mensaje de error:', followUpError);
         }
       }
     }
   });
 
-  // Manejar mensajes en el canal de historia
   client.on('messageCreate', handleStoryMessage);
-
-  console.log('[Story] Addon cargado. Historia activa:', state.active);
+  console.log('[STORIES] Addon cargado. Canales activos:', Array.from(channelStates.keys()).filter(id => channelStates.get(id).active));
 };
