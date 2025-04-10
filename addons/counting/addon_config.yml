@@ -11,11 +11,11 @@ staff_roles:
 # Límites de números consecutivos por rol
 role_settings:
   - role_id: "1083305519369953312" # Rol Personalizado
-    max_consecutive: 7
+    max_consecutive: 4
   - role_id: "755204260773494875"  # Rol Nitro Boost
-    max_consecutive: 5
-  - role_id: "795062815257395270"  # Rol Donador
     max_consecutive: 3
+  - role_id: "795062815257395270"  # Rol Donador
+    max_consecutive: 2
 
 # Colores para los embeds (hexadecimal o nombre)
 embed_colors:
