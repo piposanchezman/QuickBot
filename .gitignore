@@ -2,6 +2,7 @@ configs/config.yml
 node_modules
 products
 transcripts
+.env
 errors.txt
 info.txt
 json.sqlite
