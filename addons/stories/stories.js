@@ -174,6 +174,12 @@ async function generateAIResponse(messages, systemPrompt, temperature = 0.7) {
       max_tokens: config.max_tokens,
       stop: ["\n"]
     });
+
+    // Verificación robusta de la respuesta
+    if (!completion?.choices?.[0]?.message?.content) {
+      console.error("Respuesta de IA no válida:", completion);
+      return null;
+    }
     
     let response = completion.choices[0].message.content.trim();
     if (!/[.!?]$/.test(response)) response += '.';
