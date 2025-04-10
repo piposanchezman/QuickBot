@@ -1,0 +1,147 @@
+# ________________________________________________
+#
+# CONFIGURACIÓN DEL COMPLEMENTO DE RESPUESTA AUTOMÁTICA
+# ________________________________________________
+
+# Configuración básica
+enabled: true
+use_prefix: false
+prefix: "!"
+default_color: "#0099FF"
+trigger_words: true
+
+# Roles que pueden usar comandos staff (IDs de roles)
+staff_roles:
+  - "771928996694589481"
+  - "1184568538715918436"
+  - "771927644236546050"
+
+# Categorías donde se pueden usar comandos staff (IDs de categorías)
+staff_categories:
+  - "721832618869391381"
+
+# Mensajes de error personalizables
+error_messages:
+  invalid_type: "⚠️ Tipo de información no válido. Por favor selecciona una opción de la lista."
+  no_replies: "⚠️ El sistema de respuestas automáticas no está configurado correctamente."
+  no_permission: "⚠️ No tienes permiso para usar este comando."
+  wrong_channel: "⚠️ Este comando solo puede usarse en canales de soporte."
+  config_reloaded: "✅ Configuración recargada correctamente."
+
+# Configuración de respuestas públicas
+replies:
+  ip:
+    title: "★ Información de Conexión ★"
+    description: "Conéctate a nuestro servidor con estos datos:"
+    color: "#00FF00"
+    fields:
+      - name: "Versiones Java"
+        value: "1.8 hasta la 1.21.x"
+        inline: true
+      - name: "IP Java"
+        value: "quickland.net"
+        inline: true
+      - name: "Modalidades"
+        value: "Survival 1.12.2, FFa Clans, QuickPvp, OneBlock, etc."
+        inline: false
+      - name: "Versiones Bedrock"
+        value: "+1.21.40"
+        inline: true
+      - name: "IP Bedrock"
+        value: "quickland.net"
+        inline: true
+      - name: "Puerto Bedrock"
+        value: "19132"
+        inline: true
+    thumbnail: ""
+    footer: "¡Esperamos verte en el servidor!"
+
+  invitar:
+    title: "Invitación al servidor"
+    description: "¡Estaremos agradecidos si compartes nuestra invitación!"
+    color: "#5865F2"
+    fields:
+      - name: "Enlace de invitación"
+        value: "[Invitación (Click Aquí)](https://discord.quickland.net/)"
+        inline: false
+    footer: "¡Te esperamos en nuestra comunidad!"
+
+# Configuración de respuestas staff
+staff_replies:
+  saludo:
+    description: "Respuesta de bienvenida estándar para iniciar la conversación de soporte"
+    text: |
+      ¡Hola! 👋 Bienvenido/a al soporte oficial de QuickLand Network. 
+      Estamos aquí para ayudarte. Por favor, indícanos cómo podemos asistirte hoy.
+
+  finalizar:
+    description: "Mensaje de cierre para confirmar resolución del caso"
+    text: |
+      ✅ Hemos procesado exitosamente tu solicitud/reporte. 
+      ¿Quedó todo resuelto a tu satisfacción o hay algo más en lo que podamos ayudarte?
+
+  despedida:
+    description: "Mensaje de despedida formal al terminar la interacción"
+    text: |
+      ¡Gracias por contactar al soporte de QuickLand Network! 
+      Si necesitas ayuda en el futuro, no dudes en crear un nuevo ticket. 
+      ¡Que tengas un excelente día! 🚀
+
+  postulacion_staff:
+    description: "Respuesta para consultas sobre aplicaciones para staff"
+    text: |
+      ℹ️ Actualmente las aplicaciones para Staff se encuentran CERRADAS temporalmente.
+      Te recomendamos seguir nuestro canal de #Anuncios donde publicaremos cuando se reabran las postulaciones.
+      ¡Gracias por tu interés en formar parte de nuestro equipo!
+
+  perdí_proteccion:
+    description: "Plantilla para reportar pérdida de protección en el juego"
+    text: |
+      🔒 Reporte de Pérdida de Protección:
+      **Nick:** [Ingresa tu nombre de usuario aquí]
+      Por favor menciona: @Admin @Manager @Co-Fundador
+      Adjunta pruebas si es posible.
+
+  reportar:
+    description: "Plantilla estándar para reportar usuarios o miembros del staff"
+    text: |
+      ⚠️ Formulario de Reporte:
+      **Nick del infractor:** 
+      **Motivo del reporte:** 
+      **Pruebas (capturas/video):** 
+      Por favor proporciona todos los detalles posibles.
+
+  compra_rango:
+    description: "Plantilla para problemas con compra de rangos"
+    text: |
+      💳 Problema con Compra de Rango:
+      **Nick:** 
+      **N° de Factura/Transacción:** 
+      **Descripción del problema:**
+      Un miembro del equipo revisará tu caso shortly.
+
+  cambiar_contraseña:
+    description: "Plantilla para solicitud de cambio de contraseña de cuenta"
+    text: |
+      🔐 Solicitud de Cambio de Contraseña:
+      **Nick:** 
+      **Nueva Contraseña:** 
+      **Tu IP (ver en:** https://www.cual-es-mi-ip.net/): 
+      Recuerda usar una contraseña segura y no compartirla.
+
+  postulacion_builder:
+    description: "Plantilla para aplicaciones al equipo de construcción"
+    text: |
+      � Aplicación para Builder:
+      **Nick:** 
+      **Portafolio (enlace):** 
+      Menciona: @Rewkun para revisión.
+      ¡Buena suerte con tu aplicación!
+
+  ofrecer_servicio:
+    description: "Respuesta para proveedores que ofrecen servicios a la red"
+    text: |
+      💼 Oferta de Servicios:
+      Un representante de nuestro equipo se pondrá en contacto contigo para evaluar tu propuesta.
+      Menciona: @Head-Staff @Manager @Co-Fundador @Fundador
+      Por favor ten paciencia mientras revisamos tu oferta.
