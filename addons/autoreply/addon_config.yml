@@ -82,6 +82,9 @@ replies:
     description: "Por favor lee atentamente nuestras reglas antes de participar"
     color: "#FF0000"
     fields:
+      - name: "Canal de normas"
+        value: "<#703852488477900840>"
+        inline: false
       - name: "Documento de reglas"
         value: "[Enlace (Click Aquí)](https://docs.google.com/document/d/1vA839HbBLUjTJafXd9sVLzEeQmiBhjbM-XnvQiw410Q)"
         inline: false
